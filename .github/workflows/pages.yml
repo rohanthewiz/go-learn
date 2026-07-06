@@ -1,0 +1,60 @@
+# Verifies all track content against the native interpreter, then deploys
+# the site to GitHub Pages.
+# Requires Pages to be enabled with source = "GitHub Actions"
+# (Settings → Pages → Build and deployment).
+name: site
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # Every problem: starter compiles + fails >=1 test, solution passes all;
+      # every lesson: solution satisfies its check. Same interpreter and merge
+      # code the browser ships.
+      - name: Verify tracks
+        run: node verify/verify.mjs
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build wasm
+        run: ./build.sh
+      - name: Stage site
+        run: |
+          mkdir -p _site
+          cp index.html highlight.js go-learn.wasm wasm_exec.js _site/
+          cp -R engine tracks _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
