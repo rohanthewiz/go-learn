@@ -75,9 +75,31 @@ Plus 6 `<script>` tags appended in `index.html` (after go-basics).
   page references `system-design` 6 times. Browser click-through not done (Chrome
   extension unavailable) — Node harness covers the same interpreter + merge paths.
 
+### Live-site verification (post-deploy)
+
+Pushed to `origin/master`; the `site` workflow (`.github/workflows/pages.yml`, run
+`29143149529`) re-ran verify.mjs and deployed to GitHub Pages at
+<https://rohanthewiz.github.io/go-learn/>. Then verified the **deployed artifacts**
+directly: downloaded the live `go-learn.wasm`, `engine/assemble.js`, and all six
+system-design track files from Pages and drove them from Node (the deployed wasm sets a
+generic `goRun.run(src)` on `globalThis`, so `wasm_exec.js` works under Node — same
+binary and merge code the browser runs, minus the DOM).
+
+- Deployed wasm reports **build `3b84e28`** — built from the pushed commit.
+- All 12 checks pass on the live artifacts: lesson starter doesn't pre-pass / solution
+  passes; every problem's starter fails ≥1 test and solution passes all
+  (4–5 tests each; 5 ms WRR up to 233 ms for the consistent-hashing property suite,
+  well inside the 5 s wasm run timeout).
+- Not exercised: the browser UI itself (track dropdown, nav, editor) — generic engine
+  code already proven by the other two tracks. Test harness kept at
+  `<scratchpad>/live-test/main.cjs` (session-scoped; recreate by downloading the live
+  files and replaying the verify.mjs flow against `goRun.run`).
+
 ## Current state / possible next steps
 
-- Working tree clean at `1dc5349`; no wasm rebuild needed (no Go changes).
+- Pushed through `3b84e28` and **deployed to GitHub Pages** (workflow green, live wasm
+  reports the same build); no local wasm rebuild was needed (no Go changes — CI builds
+  wasm on deploy).
 - Ideas discussed or natural follow-ons (not committed anywhere): more items
   (write-ahead log, sharded counter, LSM memtable, leaky bucket comparison), a `quiz`
   kind as a new plugin kind, weighted vnodes exercise extension.
