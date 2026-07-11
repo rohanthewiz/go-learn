@@ -7,7 +7,7 @@
  * through the sentinel protocol via emitResults below.
  *
  * Shared Go snippets (HARNESS_RT, LIST_HELPERS, TREE_HELPERS) are single-
- * source constants concatenated into harnesses so the 15 problems can't
+ * source constants concatenated into harnesses so the problems can't
  * drift apart. They are bare declarations — no package/import clauses —
  * because they're spliced into the harness file, whose import block must
  * cover what they use (fmt, encoding/json for HARNESS_RT).
@@ -29,27 +29,30 @@
 			'valid-palindrome', 'three-sum', 'container-with-most-water', 'trapping-rain-water',
 			// Sliding Window
 			'best-time-to-buy-sell-stock', 'longest-substring-without-repeating',
-			'longest-repeating-character-replacement',
+			'longest-repeating-character-replacement', 'min-window-substring',
 			// Binary Search
 			'binary-search', 'search-in-rotated-sorted-array', 'koko-eating-bananas',
 			// Linked List
 			'reverse-linked-list', 'merge-two-sorted-lists', 'linked-list-cycle',
-			'remove-nth-node-from-end',
+			'remove-nth-node-from-end', 'add-two-numbers',
 			// Trees
 			'invert-binary-tree', 'max-depth-binary-tree', 'same-tree', 'balanced-binary-tree',
 			'binary-tree-level-order-traversal', 'validate-binary-search-tree',
 			// Heap / Priority Queue
-			'last-stone-weight',
+			'last-stone-weight', 'kth-largest-element',
 			// Backtracking
-			'subsets',
+			'subsets', 'permutations', 'combination-sum',
 			// Graphs
 			'number-of-islands', 'course-schedule',
 			// Intervals
-			'merge-intervals',
+			'merge-intervals', 'insert-interval',
+			// Greedy
+			'jump-game',
 			// Dynamic Programming
 			'climbing-stairs', 'maximum-subarray', 'house-robber', 'coin-change',
+			'longest-increasing-subsequence', 'unique-paths', 'word-break',
 			// Bit Manipulation
-			'single-number',
+			'single-number', 'number-of-1-bits', 'counting-bits',
 		],
 	});
 
