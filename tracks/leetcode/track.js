@@ -21,21 +21,35 @@
 		runner: 'go-wasm',
 		order: [
 			// Arrays & Hashing
-			'two-sum', 'valid-anagram', 'group-anagrams',
+			'two-sum', 'contains-duplicate', 'valid-anagram', 'group-anagrams',
+			'top-k-frequent-elements', 'product-of-array-except-self', 'longest-consecutive-sequence',
 			// Stack
-			'valid-parentheses',
+			'valid-parentheses', 'min-stack', 'evaluate-reverse-polish-notation', 'daily-temperatures',
 			// Two Pointers
-			'three-sum',
+			'valid-palindrome', 'three-sum', 'container-with-most-water', 'trapping-rain-water',
 			// Sliding Window
 			'best-time-to-buy-sell-stock', 'longest-substring-without-repeating',
+			'longest-repeating-character-replacement',
 			// Binary Search
-			'binary-search',
+			'binary-search', 'search-in-rotated-sorted-array', 'koko-eating-bananas',
 			// Linked List
 			'reverse-linked-list', 'merge-two-sorted-lists', 'linked-list-cycle',
+			'remove-nth-node-from-end',
 			// Trees
-			'invert-binary-tree', 'max-depth-binary-tree',
+			'invert-binary-tree', 'max-depth-binary-tree', 'same-tree', 'balanced-binary-tree',
+			'binary-tree-level-order-traversal', 'validate-binary-search-tree',
+			// Heap / Priority Queue
+			'last-stone-weight',
+			// Backtracking
+			'subsets',
+			// Graphs
+			'number-of-islands', 'course-schedule',
+			// Intervals
+			'merge-intervals',
 			// Dynamic Programming
-			'climbing-stairs', 'maximum-subarray',
+			'climbing-stairs', 'maximum-subarray', 'house-robber', 'coin-change',
+			// Bit Manipulation
+			'single-number',
 		],
 	});
 
