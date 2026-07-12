@@ -5,12 +5,13 @@
 set -eu
 cd "$(dirname "$0")"
 
-# encoding/base64, path/filepath, runtime, and sync are not for user code —
-# they are what the staged element/serr *sources* import (see wasm/runner);
-# interpreted packages resolve their own imports through this table too.
+# encoding/base64, path/filepath, runtime, and sync{,/atomic} are not for
+# user code — they are what the staged element/serr *sources* import (see
+# wasm/runner); interpreted packages resolve their own imports through this
+# table too. (sync/atomic arrived with element v0.6.0's debug concerns.)
 for pkg in bytes container/heap container/list errors fmt math math/bits \
 	math/rand reflect sort strconv strings time unicode unicode/utf8 \
-	encoding/json encoding/base64 path/filepath runtime sync; do
+	encoding/json encoding/base64 path/filepath runtime sync sync/atomic; do
 	go run github.com/traefik/yaegi/cmd/yaegi extract "$pkg"
 done
 

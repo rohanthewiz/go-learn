@@ -24,6 +24,11 @@ right in the page. No server, no toolchain, no sign-up: the Go interpreter
   TypeScript 7 (`tsgo`, the Go-native compiler) emits the JS, and
   [rweb](https://github.com/rohanthewiz/rweb) serves it all with the CSS/JS
   embedded. The element and go-styl code runs live in the page.
+- **Rust for Go Devs** — 8 items teaching Rust's compile-time rules by
+  *implementing* them: each shows real Rust code and the real compiler error
+  (E0382, E0502, E0106, …), then has you write the rule rustc enforces —
+  moves, Copy, drop order, the borrow checker, lifetime elision, match
+  exhaustiveness, the `?` operator, char boundaries — as testable Go.
 - **Go basics** — a short on-ramp (hello, slices & loops, maps) for readers
   new to Go.
 

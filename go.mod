@@ -8,7 +8,7 @@ go 1.26
 require github.com/traefik/yaegi v0.16.2-0.20260209085605-fcb76d1ece0c
 
 require (
-	github.com/rohanthewiz/element v0.5.6
+	github.com/rohanthewiz/element v0.6.0
 	github.com/rohanthewiz/go-styl v0.2.0
 )
 
