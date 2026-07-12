@@ -20,39 +20,54 @@
 		title: 'LeetCode in Go',
 		runner: 'go-wasm',
 		order: [
+			// Foundations
+			'pattern-playbook',
 			// Arrays & Hashing
 			'two-sum', 'contains-duplicate', 'valid-anagram', 'group-anagrams',
 			'top-k-frequent-elements', 'product-of-array-except-self', 'longest-consecutive-sequence',
+			'valid-sudoku', 'encode-decode-strings', 'majority-element',
 			// Stack
 			'valid-parentheses', 'min-stack', 'evaluate-reverse-polish-notation', 'daily-temperatures',
+			'largest-rectangle-in-histogram',
 			// Two Pointers
-			'valid-palindrome', 'three-sum', 'container-with-most-water', 'trapping-rain-water',
+			'valid-palindrome', 'two-sum-ii', 'three-sum', 'container-with-most-water',
+			'sort-colors', 'trapping-rain-water',
 			// Sliding Window
 			'best-time-to-buy-sell-stock', 'longest-substring-without-repeating',
-			'longest-repeating-character-replacement', 'min-window-substring',
+			'longest-repeating-character-replacement', 'permutation-in-string', 'min-window-substring',
 			// Binary Search
-			'binary-search', 'search-in-rotated-sorted-array', 'koko-eating-bananas',
+			'binary-search', 'search-2d-matrix', 'find-min-in-rotated-sorted-array',
+			'search-in-rotated-sorted-array', 'koko-eating-bananas', 'median-of-two-sorted-arrays',
 			// Linked List
 			'reverse-linked-list', 'merge-two-sorted-lists', 'linked-list-cycle',
-			'remove-nth-node-from-end', 'add-two-numbers',
+			'reorder-list', 'remove-nth-node-from-end', 'copy-list-with-random-pointer',
+			'add-two-numbers', 'merge-k-sorted-lists',
 			// Trees
-			'invert-binary-tree', 'max-depth-binary-tree', 'same-tree', 'balanced-binary-tree',
-			'binary-tree-level-order-traversal', 'validate-binary-search-tree',
+			'invert-binary-tree', 'max-depth-binary-tree', 'diameter-of-binary-tree', 'same-tree',
+			'subtree-of-another-tree', 'balanced-binary-tree', 'lowest-common-ancestor-bst',
+			'binary-tree-level-order-traversal', 'kth-smallest-in-bst', 'validate-binary-search-tree',
+			// Tries
+			'implement-trie',
 			// Heap / Priority Queue
-			'last-stone-weight', 'kth-largest-element',
+			'last-stone-weight', 'k-closest-points', 'kth-largest-element', 'task-scheduler',
 			// Backtracking
-			'subsets', 'permutations', 'combination-sum',
+			'subsets', 'permutations', 'combination-sum', 'generate-parentheses',
+			'letter-combinations', 'word-search',
 			// Graphs
-			'number-of-islands', 'course-schedule',
+			'number-of-islands', 'rotting-oranges', 'pacific-atlantic', 'course-schedule',
+			'redundant-connection',
 			// Intervals
-			'merge-intervals', 'insert-interval',
+			'merge-intervals', 'insert-interval', 'non-overlapping-intervals', 'meeting-rooms',
 			// Greedy
-			'jump-game',
+			'jump-game', 'gas-station', 'partition-labels',
 			// Dynamic Programming
-			'climbing-stairs', 'maximum-subarray', 'house-robber', 'coin-change',
-			'longest-increasing-subsequence', 'unique-paths', 'word-break',
+			'climbing-stairs', 'min-cost-climbing-stairs', 'maximum-subarray', 'house-robber',
+			'decode-ways', 'coin-change', 'palindromic-substrings', 'longest-increasing-subsequence',
+			'longest-common-subsequence', 'edit-distance', 'partition-equal-subset-sum',
+			'unique-paths', 'word-break',
 			// Bit Manipulation
-			'single-number', 'number-of-1-bits', 'counting-bits',
+			'single-number', 'number-of-1-bits', 'counting-bits', 'reverse-bits',
+			'missing-number', 'sum-of-two-integers',
 		],
 	});
 
