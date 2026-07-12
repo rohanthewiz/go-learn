@@ -29,6 +29,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      # The native runner embeds wasm/runner/srcfs (element + serr sources
+      # for the TypeScript track) — stage it before anything builds ./wasm.
+      - name: Stage interpreter sources
+        run: ./build.sh stage
       # Every problem: starter compiles + fails >=1 test, solution passes all;
       # every lesson: solution satisfies its check. Same interpreter and merge
       # code the browser ships.

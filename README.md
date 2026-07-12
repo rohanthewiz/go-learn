@@ -8,11 +8,22 @@ right in the page. No server, no toolchain, no sign-up: the Go interpreter
 
 ## Tracks
 
-- **LeetCode in Go** — 15 classic problems across 8 categories (arrays &
-  hashing, stack, two pointers, sliding window, binary search, linked lists,
-  trees, dynamic programming). Each has a statement with an SVG intuition
-  diagram, a live editor run against real test cases as you type, and a
-  solution with a full walkthrough and complexity notes.
+- **LeetCode in Go** — 93 classic problems across the standard categories
+  (arrays & hashing, stack, two pointers, sliding window, binary search,
+  linked lists, trees, dynamic programming, greedy, …). Each has a statement
+  with an SVG intuition diagram, a live editor run against real test cases
+  as you type, and a solution with a full walkthrough and complexity notes.
+- **System Design** — 24 runnable building blocks (consistent hashing, token
+  bucket, bloom filter, write-ahead log, …).
+- **AWS Solutions Architect** — 12 exam decision procedures as testable Go.
+- **CKA: Kubernetes Admin** — 13 control-plane decision procedures
+  (scheduling, eviction, RBAC, …) as testable Go.
+- **TypeScript + Go Web** — 6 lessons building a one-binary web app:
+  [element](https://github.com/rohanthewiz/element) writes the HTML,
+  [go-styl](https://github.com/rohanthewiz/go-styl) compiles the CSS,
+  TypeScript 7 (`tsgo`, the Go-native compiler) emits the JS, and
+  [rweb](https://github.com/rohanthewiz/rweb) serves it all with the CSS/JS
+  embedded. The element and go-styl code runs live in the page.
 - **Go basics** — a short on-ramp (hello, slices & loops, maps) for readers
   new to Go.
 
@@ -31,7 +42,9 @@ engine/worker.js     web worker hosting the interpreter — an infinite loop in
 engine/assemble.js   merges user code + problem harness into one Go program;
                      parses sentinel-delimited results out of stdout
 tracks/<id>/         a track = manifest + items; plain script tags, no build step
-wasm/                the interpreter: yaegi + trimmed stdlib symbols (~3 MB gz)
+wasm/                the interpreter: yaegi + trimmed stdlib symbols, plus
+                     go-styl compiled in and element/serr staged as source
+                     (wasm/runner/srcfs, for the TypeScript track)
 ```
 
 A track declares a runner (`go-wasm`, or none) and registers items of some
@@ -48,10 +61,15 @@ a console pane, and compile-error lines map back to the editor.
 ## Development
 
 ```sh
-./build.sh              # build go-learn.wasm + copy wasm_exec.js
+./build.sh              # stage srcfs + build go-learn.wasm + copy wasm_exec.js
 go run ./serve          # http://localhost:8080
 node verify/verify.mjs  # check every problem/lesson against the native runner
 ```
+
+On a fresh clone run `./build.sh` (or `./build.sh stage`) once before any
+native `go build ./wasm` / `verify.mjs` run: it stages the element and serr
+sources the interpreter embeds (`wasm/runner/srcfs`, not committed) from the
+module cache at the versions go.mod pins.
 
 `verify.mjs` enforces, for every problem: the starter compiles but fails at
 least one test, and the solution passes all of them — with the exact merge

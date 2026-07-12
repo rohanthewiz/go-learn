@@ -5,8 +5,18 @@
 set -eu
 cd "$(dirname "$0")"
 
+# encoding/base64, path/filepath, runtime, and sync are not for user code —
+# they are what the staged element/serr *sources* import (see wasm/runner);
+# interpreted packages resolve their own imports through this table too.
 for pkg in bytes container/heap container/list errors fmt math math/bits \
 	math/rand reflect sort strconv strings time unicode unicode/utf8 \
-	encoding/json; do
+	encoding/json encoding/base64 path/filepath runtime sync; do
 	go run github.com/traefik/yaegi/cmd/yaegi extract "$pkg"
 done
+
+# go-styl is extracted as compiled symbols (native speed for CSS compiles in
+# the TypeScript track) rather than staged as source: its exported API has no
+# generics, so reflection covers it. element/serr, by contrast, are staged as
+# interpretable source in wasm/runner (element.ForEach is generic — reflect
+# can't express it).
+go run github.com/traefik/yaegi/cmd/yaegi extract github.com/rohanthewiz/go-styl

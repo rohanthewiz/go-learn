@@ -2,6 +2,8 @@
 go-learn.wasm
 wasm_exec.js
 _site/
+# element/serr sources staged from the module cache by `./build.sh stage`
+wasm/runner/srcfs/
 
 # Local tooling
 .claude/
