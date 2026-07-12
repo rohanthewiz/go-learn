@@ -29,8 +29,11 @@ right in the page. No server, no toolchain, no sign-up: the Go interpreter
   (E0382, E0502, E0106, …), then has you write the rule rustc enforces —
   moves, Copy, drop order, the borrow checker, lifetime elision, match
   exhaustiveness, the `?` operator, char boundaries — as testable Go.
-- **Go basics** — a short on-ramp (hello, slices & loops, maps) for readers
-  new to Go.
+- **Go** — starts as a short on-ramp (hello, slices & loops, maps), then goes
+  advanced: **Concurrency** (goroutines & WaitGroup, channels, select, fan-in,
+  worker pool, mutexes) and **Gotchas** (loop-variable capture, nil maps,
+  range copies, append aliasing, defer semantics) — the traps every Go
+  interview and code review circles back to.
 
 Plus a free-form **Playground** tab: any Go main program → stdout.
 
