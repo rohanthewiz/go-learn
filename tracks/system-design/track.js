@@ -31,15 +31,25 @@
 			// Foundations
 			'back-of-envelope',
 			// Caching
-			'lru-cache',
+			'lru-cache', 'lfu-cache', 'ttl-cache',
 			// Rate Limiting
-			'token-bucket',
+			'token-bucket', 'sliding-window-log', 'sliding-window-counter',
 			// Partitioning
-			'consistent-hashing',
+			'consistent-hashing', 'rendezvous-hashing', 'shard-router',
 			// Probabilistic Structures
-			'bloom-filter',
+			'bloom-filter', 'count-min-sketch', 'heavy-hitters',
 			// Load Balancing
 			'smooth-wrr',
+			// Unique IDs & Encoding
+			'base62-shortener', 'snowflake-id',
+			// Resilience
+			'retry-backoff', 'circuit-breaker',
+			// Replication & Consistency
+			'quorum-rw', 'vector-clocks', 'merkle-tree',
+			// Storage Engines
+			'write-ahead-log', 'lsm-memtable',
+			// Messaging
+			'message-queue-visibility',
 		],
 	});
 
