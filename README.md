@@ -41,6 +41,14 @@ in a web worker.
   (E0382, E0502, E0106, …), then has you write the rule rustc enforces —
   moves, Copy, drop order, the borrow checker, lifetime elision, match
   exhaustiveness, the `?` operator, char boundaries — as testable Go.
+- **Dart for Go Devs** — 16 items teaching the rules that make Dart Dart by
+  *implementing* them as testable Go: sound null safety, `?.`/`??`/`??=`,
+  flow-based type promotion (and why fields don't promote), `late`,
+  `final` vs `const` canonicalization, named/`required` parameters,
+  cascades, mixin linearization, extension methods' static dispatch,
+  collection `if`/spread, records, sealed-class exhaustiveness, the
+  sync-until-first-`await` rule, the two-queue event loop, streams, and
+  isolate message copying.
 - **Go** — starts as a short on-ramp (hello, slices & loops, maps), then goes
   advanced: **Concurrency** (goroutines & WaitGroup, channels, select, fan-in,
   worker pool, mutexes) and **Gotchas** (loop-variable capture, nil maps,
