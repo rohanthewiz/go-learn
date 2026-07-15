@@ -56,6 +56,14 @@ in a web worker.
   Row/Column flex algorithm (overflow stripes included), `Theme.of`'s
   upward walk, reverse-paint-order hit testing, the Navigator stack, and
   the FutureBuilder snapshot machine.
+- **CSS via Stylus** — 16 lessons on the principles of CSS — the cascade
+  & specificity, inheritance, selectors & combinators, pseudo-classes,
+  the box model, units, color, normal flow, flexbox, grid, positioning,
+  mobile-first media queries, motion, mixins, and a design-system
+  capstone — written in Stylus (indentation, variables, nesting,
+  compile-time color math) and compiled live in the page by
+  [go-styl](https://github.com/rohanthewiz/go-styl). Checks assert on
+  the emitted CSS, so any correct styling passes.
 - **Go** — starts as a short on-ramp (hello, slices & loops, maps), then goes
   advanced: **Concurrency** (goroutines & WaitGroup, channels, select, fan-in,
   worker pool, mutexes) and **Gotchas** (loop-variable capture, nil maps,
