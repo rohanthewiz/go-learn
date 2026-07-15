@@ -61,6 +61,7 @@
 		if (typeof seg === 'string') return seg;
 		var lang = seg.lang || 'go';
 		var body = lang === 'go' ? goHi.go(seg.code)
+			: lang === 'ts' ? goHi.ts(seg.code)
 			: lang === 'html' ? goHi.html(seg.code)
 			: lang === 'css' ? goHi.css(seg.code)
 			: goHi.escape(seg.code);
@@ -96,6 +97,9 @@
 		$('tut-prev').disabled = cur === 0;
 		$('tut-next').disabled = cur === items.length - 1;
 		$('tut-solution').style.display = items[cur] && items[cur].solution ? '' : 'none';
+		// The playground runs Go only — offering it for a ts item would paste
+		// TypeScript into the Go interpreter.
+		$('tut-toplay').style.display = items[cur] && items[cur].lang && items[cur].lang !== 'go' ? 'none' : '';
 	}
 
 	function open(i) {
@@ -222,7 +226,11 @@
 				outBar: $('tout-lbl'),
 			};
 			onRepaintExtra = (opts && opts.onRepaint) || null;
-			repaint = goHi.editor(els.ta, els.taHl, hlOn);
+			// The editor overlay follows the current item's language (items may
+			// declare lang:'ts'; default is Go) — evaluated per paint, so track
+			// and item switches recolor without any extra wiring.
+			repaint = goHi.editor(els.ta, els.taHl, hlOn,
+				function () { return (items[cur] && items[cur].lang) || 'go'; });
 
 			// Track picker: only rendered when more than one track registered.
 			var sel = $('track');

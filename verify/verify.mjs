@@ -9,7 +9,14 @@
 //   - starter does NOT already pass every test (guards vacuous tests)
 //   - solution passes every test, with empty stderr
 // Per lesson: starter runs but does not pre-pass check(); solution passes.
+// Lessons marked starterError: true invert the first clause — the starter
+// MUST fail to compile (the diagnostic is the lesson) and the solution must
+// run clean.
 // Plus static shape checks (ids, manifest order, sentinels, script tags).
+//
+// Tracks declaring runner 'ts' execute through the SAME compile-and-run core
+// the browser worker uses (engine/ts-run.js + third_party/typescript) instead of
+// the Go binary — again, no drift between CI and production.
 //
 // Exits non-zero on any failure; CI runs this before deploying.
 
@@ -89,9 +96,29 @@ function run(src) {
 	}
 }
 
+// --- the TypeScript runner (runner: 'ts' tracks) ---------------------------
+// Built lazily: the compiler is a 9 MB parse, pointless when no ts track is
+// registered. ts-run.js's run() is async (it settles a macrotask so promise
+// chains print); the Go run() result is plain — `await` tolerates both, so
+// the per-item loop below treats the two runners uniformly.
+let tsRunner = null;
+function tsRun(src) {
+	if (!tsRunner) {
+		const tsc = require(path.join(ROOT, 'third_party/typescript/typescript.js'));
+		const TR = require(path.join(ROOT, 'engine/ts-run.js'));
+		const libs = {};
+		for (const f of TR.LIB_FILES) {
+			libs[f] = readFileSync(path.join(ROOT, 'third_party/typescript', f), 'utf8');
+		}
+		tsRunner = TR.create(tsc, libs);
+	}
+	return tsRunner.run(src);
+}
+
 // --- dynamic checks ----------------------------------------------------------
 for (const tid of registered.order) {
 	const t = registered.tracks[tid];
+	const exec = t.runner === 'ts' ? tsRun : run;
 	for (const id of t.order) {
 		const it = t.items[id];
 		if (!it) continue; // already failed above
@@ -117,13 +144,19 @@ for (const tid of registered.order) {
 			else ok(`${tid}/${id}: starter fails, solution passes ${p.results.length} tests (${r.ms.toFixed(1)} ms)`);
 		} else {
 			// Lessons: starter runs; check() not pre-passed; solution passes.
-			const rs = run(it.starter);
-			if (rs.error !== undefined) { fail(`${tid}/${id}: starter errors — ${rs.error}`); continue; }
+			// starterError lessons invert the first two clauses: the starter is
+			// REQUIRED to fail compilation (the diagnostic is the lesson).
+			const rs = await exec(it.starter);
+			if (it.starterError) {
+				if (rs.error === undefined) { fail(`${tid}/${id}: starterError set but starter runs clean`); continue; }
+			} else if (rs.error !== undefined) { fail(`${tid}/${id}: starter errors — ${rs.error}`); continue; }
 			if (it.check) {
-				const flatS = rs.stdout.replace(/\s+/g, ' ');
-				if (it.check(rs.stdout, flatS) === true) fail(`${tid}/${id}: starter already passes check`);
+				if (!it.starterError) {
+					const flatS = rs.stdout.replace(/\s+/g, ' ');
+					if (it.check(rs.stdout, flatS) === true) fail(`${tid}/${id}: starter already passes check`);
+				}
 				if (!it.solution) { fail(`${tid}/${id}: has check but no solution`); continue; }
-				const r = run(it.solution);
+				const r = await exec(it.solution);
 				if (r.error !== undefined) { fail(`${tid}/${id}: solution errors — ${r.error}`); continue; }
 				const flat = r.stdout.replace(/\s+/g, ' ');
 				if (it.check(r.stdout, flat) !== true) fail(`${tid}/${id}: solution does not satisfy check`);

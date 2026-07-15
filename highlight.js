@@ -1,11 +1,15 @@
 // highlight.js — tiny, dependency-free syntax highlighters for the element
-// playground: Go source and generated HTML (with CSS inside <style> blocks).
+// playground: Go and TypeScript source, plus generated HTML (with CSS inside
+// <style> blocks).
 //
 //   goHi.go(src)            -> HTML string (token <span>s)
+//   goHi.ts(src)            -> HTML string (token <span>s)
 //   goHi.html(out, swatch)  -> HTML string (optional color swatches in CSS)
 //   goHi.escape(s)          -> HTML-escaped string
-//   goHi.editor(ta, code)   -> wires a <textarea> to its overlay <code>;
-//                               returns a repaint function
+//   goHi.editor(ta, code, enabled, lang)
+//                           -> wires a <textarea> to its overlay <code>;
+//                               returns a repaint function. `lang` (optional)
+//                               returns 'go' | 'ts' per paint, default 'go'
 //
 // Invariant shared by every tokenizer: the text content of the returned HTML
 // is character-identical to the input, so the overlay editor's textarea and
@@ -18,17 +22,33 @@ const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
 const esc = s => s.replace(/[&<>]/g, c => ESC[c]);
 const span = (cls, s) => s ? '<span class="' + cls + '">' + esc(s) + '</span>' : '';
 
-// --- Go ----------------------------------------------------------------------
+// --- Go / TypeScript ----------------------------------------------------------
+// One scanner, two word-class profiles: the languages share every lexical
+// shape the overlay needs (// and /* */ comments, ' " strings, and Go's
+// backquoted raw strings scan identically to TS template literals — both run
+// to the closing backtick, newlines included).
 
-const GO_KW = /^(?:break|case|chan|const|continue|default|defer|else|fallthrough|for|func|go|goto|if|import|interface|map|package|range|return|select|struct|switch|type|var)$/;
-const GO_LIT = /^(?:true|false|nil|iota)$/;
-const GO_TYPE = /^(?:any|bool|byte|comparable|complex64|complex128|error|float32|float64|int|int8|int16|int32|int64|rune|string|uint|uint8|uint16|uint32|uint64|uintptr)$/;
-const GO_BUILTIN = /^(?:append|cap|clear|close|complex|copy|delete|imag|len|make|max|min|new|panic|print|println|real|recover)$/;
-const GO_IDENT = /^[A-Za-z_][A-Za-z0-9_]*/;
+const GO_PROF = {
+  kw: /^(?:break|case|chan|const|continue|default|defer|else|fallthrough|for|func|go|goto|if|import|interface|map|package|range|return|select|struct|switch|type|var)$/,
+  lit: /^(?:true|false|nil|iota)$/,
+  type: /^(?:any|bool|byte|comparable|complex64|complex128|error|float32|float64|int|int8|int16|int32|int64|rune|string|uint|uint8|uint16|uint32|uint64|uintptr)$/,
+  builtin: /^(?:append|cap|clear|close|complex|copy|delete|imag|len|make|max|min|new|panic|print|println|real|recover)$/,
+  decl: /^(?:func|type)$/,
+};
 
-// Scans one chunk of Go. `st.block` carries an open /* */ across lines;
-// `st.raw` an open backquoted string.
-function goChunk(text, st) {
+const TS_PROF = {
+  kw: /^(?:abstract|as|async|await|break|case|catch|class|const|continue|debugger|declare|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|infer|instanceof|interface|is|keyof|let|namespace|new|of|out|override|private|protected|public|readonly|return|satisfies|set|static|super|switch|throw|try|type|typeof|var|while|yield)$/,
+  lit: /^(?:true|false|null|undefined|this|NaN|Infinity)$/,
+  type: /^(?:any|bigint|boolean|never|number|object|string|symbol|unknown|void)$/,
+  builtin: /^(?:0)$/, // TS has no builtin-call class; regex that matches no identifier
+  decl: /^(?:function|class|interface|type|enum|namespace)$/,
+};
+
+const IDENT = /^[A-Za-z_$][A-Za-z0-9_$]*/;
+
+// Scans one chunk. `st.block` carries an open /* */ across lines;
+// `st.raw` an open backquote (Go raw string / TS template literal).
+function chunk(text, st, prof) {
   let out = '', i = 0;
   let prevWord = '';
   const n = text.length;
@@ -52,20 +72,20 @@ function goChunk(text, st) {
     if (rest[0] === '`') { st.raw = true; out += span('t-str', '`'); i++; continue; }
     if ((m = /^"(?:\\.|[^"\\])*"?/.exec(rest))) { out += span('t-str', m[0]); i += m[0].length; prevWord = ''; continue; }
     if ((m = /^'(?:\\.|[^'\\])*'?/.exec(rest))) { out += span('t-str', m[0]); i += m[0].length; prevWord = ''; continue; }
-    if ((m = /^(?:0[xXbBoO][0-9a-fA-F_]+|(?:\d[\d_]*)(?:\.[\d_]*)?(?:[eE][+-]?\d+)?i?)/.exec(rest))) {
+    if ((m = /^(?:0[xXbBoO][0-9a-fA-F_]+|(?:\d[\d_]*)(?:\.[\d_]*)?(?:[eE][+-]?\d+)?i?n?)/.exec(rest))) {
       out += span('t-num', m[0]); i += m[0].length; prevWord = ''; continue;
     }
-    if ((m = GO_IDENT.exec(rest))) {
+    if ((m = IDENT.exec(rest))) {
       const w = m[0];
       const afterDot = text[i - 1] === '.';
       let cls;
-      if (!afterDot && GO_KW.test(w)) cls = 't-kw';
-      else if (!afterDot && GO_LIT.test(w)) cls = 't-num';
-      else if (!afterDot && GO_TYPE.test(w)) cls = 't-cls';
+      if (!afterDot && prof.kw.test(w)) cls = 't-kw';
+      else if (!afterDot && prof.lit.test(w)) cls = 't-num';
+      else if (!afterDot && prof.type.test(w)) cls = 't-cls';
       else if (rest[w.length] === '(')
-        cls = !afterDot && GO_BUILTIN.test(w) ? 't-kw' : 't-fn';
-      else if (prevWord === 'func' || prevWord === 'type') cls = 't-fn';
-      else if (!afterDot && text[i + w.length] === '.') cls = 't-var'; // package qualifier
+        cls = !afterDot && prof.builtin.test(w) ? 't-kw' : 't-fn';
+      else if (prof.decl.test(prevWord)) cls = 't-fn';
+      else if (!afterDot && text[i + w.length] === '.') cls = 't-var'; // package/object qualifier
       else cls = 't-id';
       out += span(cls, w);
       prevWord = w; i += w.length; continue;
@@ -78,7 +98,12 @@ function goChunk(text, st) {
 
 function go(src) {
   const st = { block: false, raw: false };
-  return src.split('\n').map(line => goChunk(line, st)).join('\n');
+  return src.split('\n').map(line => chunk(line, st, GO_PROF)).join('\n');
+}
+
+function ts(src) {
+  const st = { block: false, raw: false };
+  return src.split('\n').map(line => chunk(line, st, TS_PROF)).join('\n');
 }
 
 // --- CSS value scanner (for <style> bodies; ported from go-styl) -------------
@@ -234,10 +259,11 @@ function html(text, swatch) {
 // The <textarea> sits on top with transparent text (its wrapper's CSS handles
 // that); the highlighted copy lives in `code` inside an overflow-hidden <pre>
 // behind it. `enabled()` lets the host toggle highlighting off cheaply.
-function editor(ta, code, enabled) {
+function editor(ta, code, enabled, lang) {
   const pre = code.parentElement;
   const paint = () => {
-    code.innerHTML = (enabled ? enabled() : true) ? go(ta.value) + '\n' : esc(ta.value) + '\n';
+    const hi = lang && lang() === 'ts' ? ts : go;
+    code.innerHTML = (enabled ? enabled() : true) ? hi(ta.value) + '\n' : esc(ta.value) + '\n';
   };
   const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; };
   ta.addEventListener('input', paint);
@@ -246,7 +272,7 @@ function editor(ta, code, enabled) {
   return () => { paint(); sync(); };
 }
 
-const api = { go, html, css, escape: esc, editor };
+const api = { go, ts, html, css, escape: esc, editor };
 if (typeof window !== 'undefined') window.goHi = api;
 if (typeof module !== 'undefined') module.exports = api;
 })();
