@@ -49,6 +49,13 @@ in a web worker.
   collection `if`/spread, records, sealed-class exhaustiveness, the
   sync-until-first-`await` rule, the two-queue event loop, streams, and
   isolate message copying.
+- **Flutter Internals** — 12 items implementing the framework's core
+  machinery in Go: the widget tree walk, `canUpdate`, keyed list
+  reconciliation (the checkbox bug), the State lifecycle, setState dirty
+  propagation, `const` rebuild pruning, constraints-down/sizes-up, the
+  Row/Column flex algorithm (overflow stripes included), `Theme.of`'s
+  upward walk, reverse-paint-order hit testing, the Navigator stack, and
+  the FutureBuilder snapshot machine.
 - **Go** — starts as a short on-ramp (hello, slices & loops, maps), then goes
   advanced: **Concurrency** (goroutines & WaitGroup, channels, select, fan-in,
   worker pool, mutexes) and **Gotchas** (loop-variable capture, nil maps,
