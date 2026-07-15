@@ -73,6 +73,14 @@ in a web worker.
   machine, sliding-window flow control, fast retransmit, Reno congestion
   control (the sawtooth), teardown & TIME_WAIT — and iterative DNS
   resolution as the capstone.
+- **Kubernetes: Beginner to Advanced** — 16 items on the mental model the
+  CKA track's exam procedures hang off: pod phases, label selectors,
+  probe debouncing, init containers, env/ConfigMap precedence, cluster
+  DNS search paths, then the big idea — reconcile loops, Deployment →
+  ReplicaSet revisions, ownership & garbage collection — through
+  StatefulSet ordering, Jobs, CronJob policies, and the machinery
+  operators are made of: informers & watches, lease-based leader
+  election, admission webhooks, and a CRD reconciler capstone.
 - **Go** — starts as a short on-ramp (hello, slices & loops, maps), then goes
   advanced: **Concurrency** (goroutines & WaitGroup, channels, select, fan-in,
   worker pool, mutexes) and **Gotchas** (loop-variable capture, nil maps,
