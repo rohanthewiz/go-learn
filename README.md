@@ -64,6 +64,15 @@ in a web worker.
   compile-time color math) and compiled live in the page by
   [go-styl](https://github.com/rohanthewiz/go-styl). Checks assert on
   the emitted CSS, so any correct styling passes.
+- **Networking: TCP/UDP & IP** — 16 items implementing the protocols'
+  decision procedures as testable Go, weighted toward the three every
+  backend engineer ends up debugging: IPv4 addressing & CIDR, longest-prefix
+  routing, the RFC 1071 Internet checksum, fragmentation offsets, TTL &
+  traceroute, the 8-byte UDP header, socket demultiplexing, a reorder
+  buffer, then TCP end to end — the three-way handshake, the RFC 9293 state
+  machine, sliding-window flow control, fast retransmit, Reno congestion
+  control (the sawtooth), teardown & TIME_WAIT — and iterative DNS
+  resolution as the capstone.
 - **Go** — starts as a short on-ramp (hello, slices & loops, maps), then goes
   advanced: **Concurrency** (goroutines & WaitGroup, channels, select, fan-in,
   worker pool, mutexes) and **Gotchas** (loop-variable capture, nil maps,
