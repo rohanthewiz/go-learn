@@ -21,3 +21,16 @@ done
 # interpretable source in wasm/runner (element.ForEach is generic — reflect
 # can't express it).
 go run github.com/traefik/yaegi/cmd/yaegi extract github.com/rohanthewiz/go-styl
+
+# bytdb (the Database track's live engine) follows the go-styl route for the
+# same reason: generics-free exported API, and interpreting a whole SQL
+# parser/planner/executor per run would be far too slow. bytdb/sql is the
+# lesson-facing entry point (sql.New(engine).Exec("SELECT ...")); bytdb/tuple
+# is extracted too so internals lessons can demonstrate the order-preserving
+# key encoding directly. btypedb stays out: its exported API is generic
+# (Open[K, V]), which reflect extracts cannot express — and lessons only ever
+# reach it through bytdb anyway.
+for pkg in github.com/rohanthewiz/bytdb github.com/rohanthewiz/bytdb/sql \
+	github.com/rohanthewiz/bytdb/tuple; do
+	go run github.com/traefik/yaegi/cmd/yaegi extract "$pkg"
+done

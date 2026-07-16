@@ -81,6 +81,17 @@ in a web worker.
   StatefulSet ordering, Jobs, CronJob policies, and the machinery
   operators are made of: informers & watches, lease-based leader
   election, admission webhooks, and a CRD reconciler capstone.
+- **Databases: SQL to Storage Engine** — 16 items where every query runs
+  against a real embedded engine,
+  [bytdb](https://github.com/rohanthewiz/bytdb), compiled into the wasm and
+  writing through an in-memory filesystem: SQL foundations (tables & types,
+  predicates, joins, aggregates), integrity & change (constraints, upsert +
+  RETURNING, parameters vs SQL injection — live, window functions),
+  transactions (atomicity, snapshot isolation observed across two sessions,
+  sequence gaps), then inside the engine — the ordered key space,
+  order-preserving tuple encoding, secondary indexes judged by the real
+  planner's EXPLAIN, WAL recovery (the engine really replays its log), and
+  MVCC snapshots.
 - **Go** — starts as a short on-ramp (hello, slices & loops, maps), then goes
   advanced: **Concurrency** (goroutines & WaitGroup, channels, select, fan-in,
   worker pool, mutexes) and **Gotchas** (loop-variable capture, nil maps,

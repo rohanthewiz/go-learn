@@ -14,6 +14,11 @@
  *   <- {type:'result', id, r}         r = goRun.run(src) result object
  *   <- {type:'fatal', error}          wasm failed to load
  */
+// memfs must load FIRST: wasm_exec.js only installs its ENOSYS fs stub when
+// globalThis.fs is undefined, so ordering is what routes the Go runtime's
+// file syscalls into the in-memory filesystem (the Database track's bytdb
+// engine does real WAL I/O through it).
+importScripts('memfs.js');
 importScripts('../wasm_exec.js');
 
 var go = new Go();
