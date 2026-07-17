@@ -115,10 +115,26 @@ function tsRun(src) {
 	return tsRunner.run(src);
 }
 
+// --- the JavaScript runner (runner: 'js' tracks) ----------------------------
+// Node IS the production engine family (V8), and engine/js-run.js is the
+// exact core the browser worker imports — virtual timers included, so timer
+// ordering checked here is the ordering the browser shows. The
+// unhandledRejection no-op mirrors worker-js.js's onunhandledrejection
+// swallow: a starter that intentionally drops a rejection must fail its
+// stdout check, not crash the whole verify process.
+let jsRunner = null;
+function jsRun(src) {
+	if (!jsRunner) {
+		process.on('unhandledRejection', () => {});
+		jsRunner = require(path.join(ROOT, 'engine/js-run.js')).create();
+	}
+	return jsRunner.run(src);
+}
+
 // --- dynamic checks ----------------------------------------------------------
 for (const tid of registered.order) {
 	const t = registered.tracks[tid];
-	const exec = t.runner === 'ts' ? tsRun : run;
+	const exec = t.runner === 'ts' ? tsRun : t.runner === 'js' ? jsRun : run;
 	for (const id of t.order) {
 		const it = t.items[id];
 		if (!it) continue; // already failed above

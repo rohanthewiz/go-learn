@@ -1,15 +1,16 @@
 // highlight.js — tiny, dependency-free syntax highlighters for the element
-// playground: Go and TypeScript source, plus generated HTML (with CSS inside
-// <style> blocks).
+// playground: Go, TypeScript, and JavaScript source, plus generated HTML
+// (with CSS inside <style> blocks).
 //
 //   goHi.go(src)            -> HTML string (token <span>s)
 //   goHi.ts(src)            -> HTML string (token <span>s)
+//   goHi.js(src)            -> HTML string (token <span>s)
 //   goHi.html(out, swatch)  -> HTML string (optional color swatches in CSS)
 //   goHi.escape(s)          -> HTML-escaped string
 //   goHi.editor(ta, code, enabled, lang)
 //                           -> wires a <textarea> to its overlay <code>;
 //                               returns a repaint function. `lang` (optional)
-//                               returns 'go' | 'ts' per paint, default 'go'
+//                               returns 'go' | 'ts' | 'js' per paint, default 'go'
 //
 // Invariant shared by every tokenizer: the text content of the returned HTML
 // is character-identical to the input, so the overlay editor's textarea and
@@ -42,6 +43,18 @@ const TS_PROF = {
   type: /^(?:any|bigint|boolean|never|number|object|string|symbol|unknown|void)$/,
   builtin: /^(?:0)$/, // TS has no builtin-call class; regex that matches no identifier
   decl: /^(?:function|class|interface|type|enum|namespace)$/,
+};
+
+// JavaScript is TS minus the type-system words: highlighting `type` or
+// `interface` as keywords in plain JS would paint ordinary identifiers.
+// `undefined`/`NaN`/`Infinity` stay in lit — technically globals, but every
+// reader groups them with the literals.
+const JS_PROF = {
+  kw: /^(?:as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|export|extends|finally|for|from|function|get|if|import|in|instanceof|let|new|of|return|set|static|super|switch|throw|try|typeof|var|void|while|yield)$/,
+  lit: /^(?:true|false|null|undefined|this|NaN|Infinity)$/,
+  type: /^(?:0)$/, // no type-name class in JS; regex that matches no identifier
+  builtin: /^(?:0)$/,
+  decl: /^(?:function|class)$/,
 };
 
 const IDENT = /^[A-Za-z_$][A-Za-z0-9_$]*/;
@@ -104,6 +117,11 @@ function go(src) {
 function ts(src) {
   const st = { block: false, raw: false };
   return src.split('\n').map(line => chunk(line, st, TS_PROF)).join('\n');
+}
+
+function js(src) {
+  const st = { block: false, raw: false };
+  return src.split('\n').map(line => chunk(line, st, JS_PROF)).join('\n');
 }
 
 // --- CSS value scanner (for <style> bodies; ported from go-styl) -------------
@@ -262,7 +280,8 @@ function html(text, swatch) {
 function editor(ta, code, enabled, lang) {
   const pre = code.parentElement;
   const paint = () => {
-    const hi = lang && lang() === 'ts' ? ts : go;
+    const l = lang && lang();
+    const hi = l === 'ts' ? ts : l === 'js' ? js : go;
     code.innerHTML = (enabled ? enabled() : true) ? hi(ta.value) + '\n' : esc(ta.value) + '\n';
   };
   const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; };
@@ -272,7 +291,7 @@ function editor(ta, code, enabled, lang) {
   return () => { paint(); sync(); };
 }
 
-const api = { go, ts, html, css, escape: esc, editor };
+const api = { go, ts, js, html, css, escape: esc, editor };
 if (typeof window !== 'undefined') window.goHi = api;
 if (typeof module !== 'undefined') module.exports = api;
 })();

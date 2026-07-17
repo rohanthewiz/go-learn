@@ -62,6 +62,7 @@
 		var lang = seg.lang || 'go';
 		var body = lang === 'go' ? goHi.go(seg.code)
 			: lang === 'ts' ? goHi.ts(seg.code)
+			: lang === 'js' ? goHi.js(seg.code)
 			: lang === 'html' ? goHi.html(seg.code)
 			: lang === 'css' ? goHi.css(seg.code)
 			: goHi.escape(seg.code);

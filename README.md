@@ -1,10 +1,12 @@
 # go-learn
 
 Interactive, in-browser programming tutorials — solve real problems in **Go**
-(and now **TypeScript**), right in the page. No server, no toolchain, no
-sign-up: the Go interpreter ([yaegi](https://github.com/traefik/yaegi)) runs
-compiled to WebAssembly, and the real TypeScript compiler runs as vendored JS
-in a web worker.
+(and now **TypeScript** and **JavaScript**), right in the page. No server, no
+toolchain, no sign-up: the Go interpreter
+([yaegi](https://github.com/traefik/yaegi)) runs compiled to WebAssembly, the
+real TypeScript compiler runs as vendored JS in a web worker, and JavaScript
+runs on the browser's own engine — deterministically, thanks to virtual
+timers.
 
 **Live: https://rohanthewiz.github.io/go-learn/**
 
@@ -36,7 +38,17 @@ in a web worker.
   generic functions & types → `keyof`/indexed access → utility types →
   mapped types → promises & async. Some starters ship *intentionally broken*
   (`starterError`) — reading the real `TS2322` is the lesson.
-- **Rust for Go Devs** — 8 items teaching Rust's compile-time rules by
+- **Pure JavaScript** — 22 lessons, beginner through advanced, with *plain
+  modern JavaScript in the editor*, executed by the browser's own engine in
+  a web worker — no compiler, no transform. Timers are *virtualized*
+  (callbacks fire in due-time order with microtasks drained between fires),
+  so async lessons run instantly and deterministically — including a real
+  event-loop lesson the TypeScript track could never host. Values & bindings
+  → types & coercion → control flow → functions → array methods → strings &
+  regex → objects (`?.`/`??`) → destructuring & spread → maps & sets →
+  closures → higher-order functions → `this` & binding → prototypes →
+  classes (`#private`) → inheritance → iterators → generators → promises →
+  async/await → the event loop → error handling (`cause`) → Proxy & Reflect.
   *implementing* them: each shows real Rust code and the real compiler error
   (E0382, E0502, E0106, …), then has you write the rule rustc enforces —
   moves, Copy, drop order, the borrow checker, lifetime elision, match
@@ -116,6 +128,11 @@ engine/runner-ts.js  the 'ts' runner plugin — same watchdog architecture, but
 engine/worker-ts.js  web worker hosting the TypeScript compiler
 engine/ts-run.js     the TS compile-and-run core (strict check → emit → exec
                      with a captured console), shared verbatim with CI
+engine/runner-js.js  the 'js' runner plugin — pure JavaScript run by the
+                     worker's own engine; same watchdog architecture
+engine/worker-js.js  web worker hosting plain JS execution
+engine/js-run.js     the JS execute core (strict, captured console, VIRTUAL
+                     deterministic timers), shared verbatim with CI
 engine/assemble.js   merges user code + problem harness into one Go program;
                      parses sentinel-delimited results out of stdout
 tracks/<id>/         a track = manifest + items; plain script tags, no build step
@@ -126,7 +143,7 @@ third_party/typescript/   the TypeScript compiler (typescript.js) + the ES2020
                      lib.d.ts closure it type-checks against
 ```
 
-A track declares a runner (`go-wasm`, `ts`, or none) and registers items of
+A track declares a runner (`go-wasm`, `ts`, `js`, or none) and registers items of
 some kind; adding a new track — or a new *kind* of track (quizzes, system
 design) — requires no engine changes. See `tracks/go-basics/track.js` for the
 smallest possible example.
