@@ -195,11 +195,38 @@
   #tresults .pagekind .pane-lbl {
     font-size: .68rem; letter-spacing: .07em; text-transform: uppercase;
     color: var(--dim); padding: 0 0 .25rem;
+    display: flex; align-items: baseline; gap: .6rem;
   }
+  /* Show/hide control for the preview pane. Styled as quiet chrome (dim,
+     borderless-looking) so it never competes with lesson content; the label
+     row is a flex line, so margin-left:auto pins it to the right edge. */
+  #tresults .pagekind .pv-toggle {
+    margin-left: auto; flex: none; cursor: pointer;
+    border: 1px solid var(--edge); border-radius: 4px; background: transparent;
+    color: var(--dim); font: inherit; font-size: .66rem;
+    text-transform: uppercase; letter-spacing: .05em; padding: .02rem .45rem;
+  }
+  #tresults .pagekind .pv-toggle:hover { color: var(--fg); border-color: var(--dim); }
   #tresults .pagekind iframe.pv {
     flex: 1; width: 100%; border: 1px solid var(--edge); border-radius: 6px;
     background: #fff; color-scheme: light;
   }
+  /* The iframe stays truthfully white (see note above), but at rest under the
+     dark theme that is a glare panel next to dark chrome. Dim it with a filter
+     — a compositor effect on OUR side of the sandbox, so the learner's page is
+     untouched — and lift the filter on hover, i.e. exactly when the learner is
+     looking at or interacting with the preview and true colors matter. */
+  #tresults .pagekind iframe.pv { filter: brightness(.72); transition: filter .18s ease; }
+  #tresults .pagekind iframe.pv:hover { filter: none; }
+  @media (prefers-color-scheme: light) {
+    /* Light theme: a white preview matches the chrome; dimming would read as
+       a disabled pane, so the filter is dark-theme-only. */
+    #tresults .pagekind iframe.pv { filter: none; }
+  }
+  /* Collapsed preview (.pv-off, toggled by .pv-toggle): the label row stays as
+     the reopen affordance; the structure pane absorbs the freed height. */
+  #tresults .pagekind.pv-off .pv-sec { flex: 0 0 auto; min-height: 0; }
+  #tresults .pagekind.pv-off .pv-sec iframe.pv { display: none; }
   #tresults .pagekind pre.ol {
     flex: 1; margin: 0; padding: .5rem .6rem; overflow: auto;
     border: 1px solid var(--edge); border-radius: 6px;

@@ -30,17 +30,40 @@
 		ctx.els.err.style.display = 'block';
 	}
 
+	// Preview visibility is a USER preference, not per-item state: one key,
+	// shared with kind-app.js (same skeleton, same pane), read at skeleton
+	// build so the choice survives lesson switches, track switches, reloads.
+	var pvKey = 'golearn:pv-hidden';
+	function pvHidden() { try { return localStorage.getItem(pvKey) === '1'; } catch (_) { return false; } }
+
+	// Wires the show/hide button built by skeleton(). The collapsed state is
+	// a class on .pagekind (CSS collapses the pane, the outline absorbs the
+	// height) — the iframe is display:none'd, NOT removed, so srcdoc set
+	// while hidden is already rendered when the learner reopens the pane.
+	function wirePvToggle(box) {
+		var pk = box.querySelector('.pagekind');
+		var btn = box.querySelector('.pv-toggle');
+		btn.textContent = pvHidden() ? 'show' : 'hide';
+		btn.onclick = function () {
+			var off = pk.classList.toggle('pv-off');
+			btn.textContent = off ? 'show' : 'hide';
+			try { localStorage.setItem(pvKey, off ? '1' : '0'); } catch (_) {}
+		};
+	}
+
 	// The kind owns everything inside #tresults; mount rebuilds the split
 	// skeleton per item open (cheap, and it clears any previous kind's DOM).
 	function skeleton(ctx) {
 		var box = ctx.els.results;
 		box.innerHTML =
-			'<div class="pagekind">' +
-			'<div class="pv-sec"><div class="pane-lbl">preview — what the browser renders</div>' +
+			'<div class="pagekind' + (pvHidden() ? ' pv-off' : '') + '">' +
+			'<div class="pv-sec"><div class="pane-lbl">preview — what the browser renders' +
+			'<button type="button" class="pv-toggle"></button></div>' +
 			'<iframe class="pv" sandbox title="rendered preview"></iframe></div>' +
 			'<div class="ol-sec"><div class="pane-lbl">structure — what the validator sees</div>' +
 			'<pre class="ol"></pre></div>' +
 			'</div>';
+		wirePvToggle(box);
 	}
 
 	GoLearn.registerKind({
