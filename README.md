@@ -62,6 +62,52 @@ timers.
   lessons show the same markup generated from Go by
   [element](https://github.com/rohanthewiz/element), bridging to the
   TypeScript + Go Web track.
+- **React** — 18 lessons, fundamentals through patterns, with *JavaScript +
+  JSX in the editor* and the real React 18 running it. One compilation (the
+  vendored TypeScript compiler transpiles the JSX, syntax only) renders
+  twice: `ReactDOMServer.renderToStaticMarkup` in the worker gives the
+  deterministic initial render — serialized through the HTML track's
+  validator into the structure outline checks pin — while a sandboxed
+  `allow-scripts` iframe mounts the same code LIVE, so state, events, and
+  effects actually work. React's dev-build warnings (missing `key`,
+  `class` vs `className`) are captured into the graded output — the keys
+  lesson pins the warning's absence. JSX → expressions → components & props
+  → conditional rendering → lists & keys → events → useState → immutable
+  updates → controlled forms → lifting state → useEffect → useMemo →
+  useReducer → useContext → custom hooks → children & composition →
+  styling → a task-board capstone.
+- **Python** — 22 lessons, fundamentals through power features, on *real
+  CPython* — the vendored [Pyodide](https://pyodide.org) WASM build in a
+  lazily-spawned worker, with `PYTHONHASHSEED=0` pinned and a fresh globals
+  dict per run so every program prints the same bytes every time. Real
+  tracebacks (Pyodide's frames stripped, the deepest user line highlighted),
+  real semantics — the MRO lesson prints an actual C3 linearization. Print &
+  variables → numbers & strings → f-strings → lists & tuples → dicts & sets
+  → control flow → function arguments → the mutable-default gotcha →
+  comprehensions → lambdas & sorting → unpacking → classes → dunder methods
+  → properties & classmethods → dataclasses → inheritance & MRO → match/case
+  → iterators & generators → decorators → exceptions & context managers →
+  itertools & collections → a word-stats capstone.
+- **Unix Shell** — 18 lessons, first commands through scripting, on a
+  *deterministic POSIX-subset shell built for teaching*
+  (`engine/sh-run.js`): real quoting, expansions (`${V:-d}`, `$(cmd)`,
+  `$((math))`), globs, pipes, redirections (incl. `2>&1` and heredocs),
+  `if`/`for`/`while`/`case`, functions, and ~25 coreutils over a filesystem
+  reseeded fresh every run — `ls` always sorted, no `date`, no `$RANDOM`,
+  and a step budget that turns `while true` into a red pane instead of a
+  hang, so checks pin exact stdout. First commands → files & dirs →
+  redirection → pipes → quoting → variables → substitution → globbing →
+  grep → cut/sort/uniq → tr/sed → exit codes → if/elif → loops → case →
+  functions → a log-report capstone over `/var/log/app.log`.
+- **Odin for Go Devs** — 14 items teaching the rules that make Odin Odin by
+  *implementing* them as testable Go: ZII (zero is initialization),
+  `distinct` types, enums & `bit_set`, tagged unions, array programming
+  (element-wise ops, swizzles), scope-based `defer` (built and diffed
+  against Go's function-based scheduler), the implicit `context` system,
+  slices vs `[dynamic]` arrays (append realloc invalidating views), arena
+  allocators, `#soa` layout arithmetic, `or_return`/`or_else`, explicit
+  proc overloading, `$T` monomorphization, and a capstone pipeline
+  combining ZII + unions + or_return + an arena.
 - **Rust for Go Devs** — 8 items teaching Rust's compile-time rules by
   *implementing* them: each shows real Rust code and the real compiler error
   (E0382, E0502, E0106, …), then has you write the rule rustc enforces —
@@ -154,6 +200,27 @@ engine/html-run.js   the strict HTML validate-and-outline core (well-formedness
                      with CI
 engine/kind-page.js  the 'page' item kind: sandboxed iframe preview (the
                      browser's forgiving view) above the validator's outline
+engine/runner-react.js  the 'react' runner plugin — lazy worker; JSX compiled
+                     by the vendored TS compiler, rendered by real React
+engine/worker-react.js  web worker hosting compiler + React (server renderer)
+engine/react-run.js  the React compile-render-outline core (transpile → exec →
+                     renderToStaticMarkup → html-run outline, dev warnings
+                     captured into stdout), shared verbatim with CI
+engine/kind-app.js   the 'app' item kind: LIVE component preview (sandboxed
+                     allow-scripts iframe mounting the same compilation)
+                     above the deterministic initial-render outline
+engine/runner-py.js  the 'py' runner plugin — lazy MODULE worker hosting real
+                     CPython (Pyodide); same watchdog architecture
+engine/worker-py.js  module worker booting Pyodide with PYTHONHASHSEED=0
+engine/py-run.js     the Python execute core (fresh globals per run, raw
+                     stdout/stderr sinks, tracebacks cleaned to user frames),
+                     shared verbatim with CI
+engine/runner-sh.js  the 'sh' runner plugin — no worker: the shell core is
+                     synchronous and self-bounded (step budget)
+engine/sh-run.js     a deterministic POSIX-subset shell (quoting, expansions,
+                     globs, pipes, redirections, control flow, functions,
+                     ~25 coreutils over a per-run seeded fs), shared
+                     verbatim with CI
 engine/assemble.js   merges user code + problem harness into one Go program;
                      parses sentinel-delimited results out of stdout
 tracks/<id>/         a track = manifest + items; plain script tags, no build step
@@ -162,9 +229,13 @@ wasm/                the interpreter: yaegi + trimmed stdlib symbols, plus
                      (wasm/runner/srcfs, for the TypeScript track)
 third_party/typescript/   the TypeScript compiler (typescript.js) + the ES2020
                      lib.d.ts closure it type-checks against
+third_party/react/   React 18 UMD dev builds (react, react-dom for the live
+                     preview, react-dom-server for the graded render)
+third_party/pyodide/ CPython compiled to WASM (pyodide.asm.wasm + stdlib zip
+                     + the isomorphic loader both the worker and CI use)
 ```
 
-A track declares a runner (`go-wasm`, `ts`, `js`, `html`, or none) and registers items of
+A track declares a runner (`go-wasm`, `ts`, `js`, `html`, `react`, `py`, `sh`, or none) and registers items of
 some kind; adding a new track — or a new *kind* of track (quizzes, system
 design) — requires no engine changes. See `tracks/go-basics/track.js` for the
 smallest possible example.

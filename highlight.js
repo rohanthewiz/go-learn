@@ -125,6 +125,163 @@ function js(src) {
   return src.split('\n').map(line => chunk(line, st, JS_PROF)).join('\n');
 }
 
+// --- Python -------------------------------------------------------------------
+// Python's lexical shapes (# comments, triple-quoted strings, string
+// prefixes, decorators) don't fit the C-family `chunk` scanner, so it gets
+// its own — same identity invariant: output text === input text.
+
+const PY_PROF = {
+  kw: /^(?:and|as|assert|async|await|break|case|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|match|nonlocal|not|or|pass|raise|return|try|while|with|yield)$/,
+  lit: /^(?:True|False|None|self|cls)$/,
+  builtin: /^(?:abs|all|any|bool|bytes|callable|dict|dir|divmod|enumerate|filter|float|format|frozenset|getattr|hasattr|hash|id|int|isinstance|issubclass|iter|len|list|map|max|min|next|object|open|ord|chr|print|property|range|repr|reversed|round|set|setattr|sorted|staticmethod|classmethod|str|sum|super|tuple|type|vars|zip)$/,
+  decl: /^(?:def|class)$/,
+};
+
+// st.tq carries an open ''' / """ across lines (the one multi-line lexical
+// state Python has; # comments end at the newline).
+function pyChunk(text, st) {
+  let out = '', i = 0;
+  let prevWord = '';
+  const n = text.length;
+  while (i < n) {
+    const rest = text.slice(i);
+    let m;
+    if (st.tq) {
+      const end = rest.indexOf(st.tq);
+      if (end < 0) { out += span('t-str', rest); return out; }
+      out += span('t-str', rest.slice(0, end + 3));
+      st.tq = null; i += end + 3; continue;
+    }
+    if (rest[0] === '#') { out += span('t-com', rest); break; }
+    // strings, with optional prefix letters (f, r, b, u and pairs like rb)
+    if ((m = /^([rRbBuUfF]{0,2})('''|""")/.exec(rest))) {
+      const open = m[0];
+      const q = m[2];
+      const end = rest.indexOf(q, open.length);
+      if (end < 0) { st.tq = q; out += span('t-str', rest); return out; }
+      out += span('t-str', rest.slice(0, end + 3)); i += end + 3; prevWord = ''; continue;
+    }
+    if ((m = /^[rRbBuUfF]{0,2}"(?:\\.|[^"\\])*"?/.exec(rest)) && /["']/.test(m[0])) {
+      out += span('t-str', m[0]); i += m[0].length; prevWord = ''; continue;
+    }
+    if ((m = /^[rRbBuUfF]{0,2}'(?:\\.|[^'\\])*'?/.exec(rest)) && /["']/.test(m[0])) {
+      out += span('t-str', m[0]); i += m[0].length; prevWord = ''; continue;
+    }
+    if ((m = /^@[A-Za-z_][\w.]*/.exec(rest))) { out += span('t-at', m[0]); i += m[0].length; prevWord = ''; continue; }
+    if ((m = /^(?:0[xXbBoO][0-9a-fA-F_]+|(?:\d[\d_]*)(?:\.[\d_]*)?(?:[eE][+-]?\d+)?[jJ]?)/.exec(rest))) {
+      out += span('t-num', m[0]); i += m[0].length; prevWord = ''; continue;
+    }
+    if ((m = IDENT.exec(rest))) {
+      const w = m[0];
+      const afterDot = text[i - 1] === '.';
+      let cls;
+      if (!afterDot && PY_PROF.kw.test(w)) cls = 't-kw';
+      else if (!afterDot && PY_PROF.lit.test(w)) cls = 't-num';
+      else if (PY_PROF.decl.test(prevWord)) cls = 't-fn';
+      else if (rest[w.length] === '(')
+        cls = !afterDot && PY_PROF.builtin.test(w) ? 't-kw' : 't-fn';
+      else if (!afterDot && text[i + w.length] === '.') cls = 't-var'; // module/object qualifier
+      else cls = 't-id';
+      out += span(cls, w);
+      prevWord = w; i += w.length; continue;
+    }
+    if ((m = /^\s+/.exec(rest))) { out += m[0]; i += m[0].length; continue; }
+    out += span('t-op', rest[0]); i++; prevWord = '';
+  }
+  return out;
+}
+
+function py(src) {
+  const st = { tq: null };
+  return src.split('\n').map(line => pyChunk(line, st)).join('\n');
+}
+
+// --- Shell --------------------------------------------------------------------
+// Line-oriented like Python's scanner: # comments, '' literal strings, ""
+// strings with $ expansions painted inside, $VAR/${..}/$(..)/$((..)),
+// keywords and common command names. Same identity invariant.
+
+const SH_KW = /^(?:if|then|elif|else|fi|for|while|do|done|case|esac|in|function|local|return|exit|export|shift|break|continue)$/;
+const SH_CMD = /^(?:echo|printf|cd|pwd|ls|cat|mkdir|touch|rm|cp|mv|grep|cut|sort|uniq|wc|head|tail|tr|seq|basename|dirname|find|sed|xargs|test|true|false|read|unset)$/;
+
+function shDollar(text, i) {
+  // paints one $-expansion starting at i; returns [html, nextIndex]
+  let m;
+  if ((m = /^\$\(\(/.exec(text.slice(i)))) {
+    let d = 0, j = i + 1;
+    while (j < text.length) {
+      if (text[j] === '(') d++;
+      else if (text[j] === ')') { d--; if (d === 0) break; }
+      j++;
+    }
+    return [span('t-num', text.slice(i, j + 1)), j + 1];
+  }
+  if (text[i + 1] === '(') {
+    let d = 0, j = i + 1;
+    while (j < text.length) {
+      if (text[j] === '(') d++;
+      else if (text[j] === ')') { d--; if (d === 0) break; }
+      j++;
+    }
+    // command substitution: paint the wrapper, recurse on the inside
+    return [span('t-op', '$(') + shLine(text.slice(i + 2, j)) + span('t-op', ')'), j + 1];
+  }
+  if ((m = /^\$\{[^}]*\}?/.exec(text.slice(i)))) return [span('t-var', m[0]), i + m[0].length];
+  if ((m = /^\$(?:[?#@*0-9]|[A-Za-z_][A-Za-z0-9_]*)/.exec(text.slice(i)))) return [span('t-var', m[0]), i + m[0].length];
+  return [span('t-op', '$'), i + 1];
+}
+
+function shLine(text) {
+  let out = '', i = 0;
+  let atCmd = true; // next word is a command-name position
+  const n = text.length;
+  while (i < n) {
+    const rest = text.slice(i);
+    let m;
+    if (rest[0] === '#') { out += span('t-com', rest); break; }
+    if (rest[0] === "'") {
+      const j = text.indexOf("'", i + 1);
+      const s = j < 0 ? rest : text.slice(i, j + 1);
+      out += span('t-str', s); i += s.length; continue;
+    }
+    if (rest[0] === '"') {
+      let j = i + 1, buf = span('t-str', '"');
+      while (j < n && text[j] !== '"') {
+        if (text[j] === '\\') { buf += span('t-str', text.slice(j, j + 2)); j += 2; continue; }
+        if (text[j] === '$') { const r = shDollar(text, j); buf += r[0]; j = r[1]; continue; }
+        buf += span('t-str', text[j]); j++;
+      }
+      if (j < n) { buf += span('t-str', '"'); j++; }
+      out += buf; i = j; continue;
+    }
+    if (rest[0] === '$') { const r = shDollar(text, i); out += r[0]; i = r[1]; atCmd = false; continue; }
+    if ((m = /^(?:&&|\|\||\||;;|;|2>&1|2>>|2>|>>|>|<<|<|\(|\)|\{|\}|\[|\]|=|\\)/.exec(rest))) {
+      out += span('t-op', m[0]); i += m[0].length;
+      if (m[0] !== '=' && m[0] !== '[' && m[0] !== ']') atCmd = true;
+      continue;
+    }
+    if ((m = /^[A-Za-z_][A-Za-z0-9_]*/.exec(rest))) {
+      const w = m[0];
+      let cls;
+      if (SH_KW.test(w)) { cls = 't-kw'; atCmd = w !== 'in'; }
+      else if (atCmd && text[i + w.length] === '=') { cls = 't-var'; }
+      else if (atCmd && SH_CMD.test(w)) { cls = 't-fn'; atCmd = false; }
+      else if (atCmd) { cls = 't-fn'; atCmd = false; }
+      else cls = 't-id';
+      out += span(cls, w); i += w.length; continue;
+    }
+    if ((m = /^-[A-Za-z0-9-]+/.exec(rest))) { out += span('t-prop', m[0]); i += m[0].length; continue; }
+    if ((m = /^\d+/.exec(rest))) { out += span('t-num', m[0]); i += m[0].length; continue; }
+    if ((m = /^\s+/.exec(rest))) { out += m[0]; i += m[0].length; continue; }
+    out += span('t-op', rest[0]); i++;
+  }
+  return out;
+}
+
+function sh(src) {
+  return src.split('\n').map(line => shLine(line)).join('\n');
+}
+
 // --- CSS value scanner (for <style> bodies; ported from go-styl) -------------
 
 const CSS_KW = /^(?:and|or|not|only|from|to|important)$/;
@@ -284,7 +441,7 @@ function editor(ta, code, enabled, lang) {
     const l = lang && lang();
     // html is editor-safe here because swatches (the one non-identity
     // decoration) are only added when the swatch arg is passed — it isn't.
-    const hi = l === 'ts' ? ts : l === 'js' ? js : l === 'html' ? html : go;
+    const hi = l === 'ts' ? ts : l === 'js' ? js : l === 'py' ? py : l === 'sh' ? sh : l === 'html' ? html : go;
     code.innerHTML = (enabled ? enabled() : true) ? hi(ta.value) + '\n' : esc(ta.value) + '\n';
   };
   const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; };
@@ -294,7 +451,7 @@ function editor(ta, code, enabled, lang) {
   return () => { paint(); sync(); };
 }
 
-const api = { go, ts, js, html, css, escape: esc, editor };
+const api = { go, ts, js, py, sh, html, css, escape: esc, editor };
 if (typeof window !== 'undefined') window.goHi = api;
 if (typeof module !== 'undefined') module.exports = api;
 })();

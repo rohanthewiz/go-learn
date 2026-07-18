@@ -410,6 +410,18 @@
 <script src="engine/html-run.js"></script>
 <script src="engine/runner-html.js"></script>
 <script src="engine/kind-page.js"></script>
+<!-- react-run.js / py-run.js are NOT page scripts: those cores live in their
+     lazy workers (worker-react.js, worker-py.js), which import them alongside
+     the vendored compiler/interpreter — only the thin runner registrations and
+     the app kind load here. -->
+<script src="engine/runner-react.js"></script>
+<script src="engine/kind-app.js"></script>
+<script src="engine/runner-py.js"></script>
+<!-- sh-run.js loads on the page like html-run.js: the shell core is
+     synchronous and self-bounded (step budget), so no worker — see
+     runner-sh.js -->
+<script src="engine/sh-run.js"></script>
+<script src="engine/runner-sh.js"></script>
 <script src="tracks/leetcode/track.js"></script>
 <script src="tracks/leetcode/problems/two-sum.js"></script>
 <script src="tracks/leetcode/problems/valid-anagram.js"></script>
@@ -637,6 +649,87 @@
 <script src="tracks/html-pure/lessons/inline-styles.js"></script>
 <script src="tracks/html-pure/lessons/accessibility.js"></script>
 <script src="tracks/html-pure/lessons/capstone-page.js"></script>
+
+<script src="tracks/react/track.js"></script>
+<script src="tracks/react/lessons/hello-jsx.js"></script>
+<script src="tracks/react/lessons/jsx-expressions.js"></script>
+<script src="tracks/react/lessons/components-props.js"></script>
+<script src="tracks/react/lessons/conditional-render.js"></script>
+<script src="tracks/react/lessons/lists-keys.js"></script>
+<script src="tracks/react/lessons/events-handlers.js"></script>
+<script src="tracks/react/lessons/usestate.js"></script>
+<script src="tracks/react/lessons/state-immutability.js"></script>
+<script src="tracks/react/lessons/forms-controlled.js"></script>
+<script src="tracks/react/lessons/lifting-state.js"></script>
+<script src="tracks/react/lessons/useeffect.js"></script>
+<script src="tracks/react/lessons/usememo.js"></script>
+<script src="tracks/react/lessons/usereducer.js"></script>
+<script src="tracks/react/lessons/usecontext.js"></script>
+<script src="tracks/react/lessons/custom-hooks.js"></script>
+<script src="tracks/react/lessons/composition-children.js"></script>
+<script src="tracks/react/lessons/styling.js"></script>
+<script src="tracks/react/lessons/capstone-taskboard.js"></script>
+
+<script src="tracks/python/track.js"></script>
+<script src="tracks/python/lessons/hello-python.js"></script>
+<script src="tracks/python/lessons/numbers-strings.js"></script>
+<script src="tracks/python/lessons/f-strings.js"></script>
+<script src="tracks/python/lessons/lists-tuples.js"></script>
+<script src="tracks/python/lessons/dicts-sets.js"></script>
+<script src="tracks/python/lessons/control-flow.js"></script>
+<script src="tracks/python/lessons/functions-args.js"></script>
+<script src="tracks/python/lessons/mutable-default-gotcha.js"></script>
+<script src="tracks/python/lessons/comprehensions.js"></script>
+<script src="tracks/python/lessons/lambdas-sorting.js"></script>
+<script src="tracks/python/lessons/unpacking.js"></script>
+<script src="tracks/python/lessons/classes-basics.js"></script>
+<script src="tracks/python/lessons/dunder-methods.js"></script>
+<script src="tracks/python/lessons/properties-classmethods.js"></script>
+<script src="tracks/python/lessons/dataclasses.js"></script>
+<script src="tracks/python/lessons/inheritance-mro.js"></script>
+<script src="tracks/python/lessons/match-case.js"></script>
+<script src="tracks/python/lessons/iterators-generators.js"></script>
+<script src="tracks/python/lessons/decorators.js"></script>
+<script src="tracks/python/lessons/exceptions-context.js"></script>
+<script src="tracks/python/lessons/itertools-collections.js"></script>
+<script src="tracks/python/lessons/capstone-wordstats.js"></script>
+
+<script src="tracks/shell/track.js"></script>
+<script src="tracks/shell/lessons/first-commands.js"></script>
+<script src="tracks/shell/lessons/files-dirs.js"></script>
+<script src="tracks/shell/lessons/cat-redirection.js"></script>
+<script src="tracks/shell/lessons/pipes.js"></script>
+<script src="tracks/shell/lessons/quoting.js"></script>
+<script src="tracks/shell/lessons/variables.js"></script>
+<script src="tracks/shell/lessons/substitution.js"></script>
+<script src="tracks/shell/lessons/globbing.js"></script>
+<script src="tracks/shell/lessons/grep.js"></script>
+<script src="tracks/shell/lessons/fields-pipelines.js"></script>
+<script src="tracks/shell/lessons/text-transforms.js"></script>
+<script src="tracks/shell/lessons/exit-codes.js"></script>
+<script src="tracks/shell/lessons/if-elif.js"></script>
+<script src="tracks/shell/lessons/loops-for.js"></script>
+<script src="tracks/shell/lessons/loops-while.js"></script>
+<script src="tracks/shell/lessons/case-patterns.js"></script>
+<script src="tracks/shell/lessons/functions.js"></script>
+<script src="tracks/shell/lessons/capstone-logreport.js"></script>
+
+<script src="tracks/odin/track.js"></script>
+<script src="tracks/odin/problems/zii-defaults.js"></script>
+<script src="tracks/odin/problems/distinct-types.js"></script>
+<script src="tracks/odin/problems/enums-bit-set.js"></script>
+<script src="tracks/odin/problems/tagged-unions.js"></script>
+<script src="tracks/odin/problems/array-programming.js"></script>
+<script src="tracks/odin/problems/defer-scope.js"></script>
+<script src="tracks/odin/problems/context-system.js"></script>
+<script src="tracks/odin/problems/slices-dynamic.js"></script>
+<script src="tracks/odin/problems/allocators.js"></script>
+<script src="tracks/odin/problems/soa-layout.js"></script>
+<script src="tracks/odin/problems/or-return.js"></script>
+<script src="tracks/odin/problems/proc-overloading.js"></script>
+<script src="tracks/odin/problems/parametric-procs.js"></script>
+<script src="tracks/odin/problems/capstone-pipeline.js"></script>
+
 <script src="tracks/rust/track.js"></script>
 <script src="tracks/rust/problems/ownership-moves.js"></script>
 <script src="tracks/rust/problems/copy-or-move.js"></script>

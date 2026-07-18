@@ -66,7 +66,7 @@ if (trackScripts.length === 0) fail('index.html: no track <script> tags found');
 for (const rel of trackScripts) require(path.join(ROOT, rel));
 
 // --- static shape checks ------------------------------------------------------
-const KNOWN_KINDS = new Set(['lesson', 'problem', 'page']);
+const KNOWN_KINDS = new Set(['lesson', 'problem', 'page', 'app']);
 for (const tid of registered.order) {
 	const t = registered.tracks[tid];
 	const seen = new Set();
@@ -155,6 +155,54 @@ function htmlRun(src) {
 	return htmlRunner.run(src);
 }
 
+// --- the Shell runner (runner: 'sh' tracks) ---------------------------------
+// engine/sh-run.js is the exact deterministic-shell core the browser runs on
+// the main thread — seeded fs, step budget and all. run() is synchronous;
+// `await` tolerates that.
+let shRunner = null;
+function shRun(src) {
+	if (!shRunner) shRunner = require(path.join(ROOT, 'engine/sh-run.js')).create();
+	return shRunner.run(src);
+}
+
+// --- the React runner (runner: 'react' tracks) ------------------------------
+// engine/react-run.js is the exact compile-render-outline core the browser
+// worker imports. The React UMD builds take their CommonJS branch under a
+// plain require (they'd require('react') by package name, which isn't
+// installed) — so they are evaluated with module/exports hidden, making them
+// attach to a sandbox global exactly as importScripts attaches them to the
+// worker global. Lazy for the same reason as tsRun.
+let reactRunner = null;
+function reactRun(src) {
+	if (!reactRunner) {
+		const tsc = require(path.join(ROOT, 'third_party/typescript/typescript.js'));
+		const sandbox = {};
+		for (const f of ['react.development.js', 'react-dom-server-legacy.browser.development.js']) {
+			new Function(readFileSync(path.join(ROOT, 'third_party/react', f), 'utf8')).call(sandbox);
+		}
+		reactRunner = require(path.join(ROOT, 'engine/react-run.js'))
+			.create(tsc, sandbox.React, sandbox.ReactDOMServer, require(path.join(ROOT, 'engine/html-run.js')));
+	}
+	return reactRunner.run(src);
+}
+
+// --- the Python runner (runner: 'py' tracks) --------------------------------
+// The vendored Pyodide loads under Node from the same directory the browser
+// worker streams it from — real CPython in CI, zero drift. Boot is ~1 s and
+// async, hence the cached-promise shape; PYTHONHASHSEED=0 must be passed at
+// interpreter start (see engine/py-run.js).
+let pyRunnerP = null;
+function pyRun(src) {
+	if (!pyRunnerP) {
+		const { loadPyodide } = require(path.join(ROOT, 'third_party/pyodide/pyodide.js'));
+		pyRunnerP = loadPyodide({
+			indexURL: path.join(ROOT, 'third_party/pyodide/'),
+			env: { PYTHONHASHSEED: '0' },
+		}).then(py => require(path.join(ROOT, 'engine/py-run.js')).create(py));
+	}
+	return pyRunnerP.then(r => r.run(src));
+}
+
 // --- dynamic checks ----------------------------------------------------------
 // `only` is "track" or "track/item" (see header). Unknown scopes fail loudly
 // rather than green-lighting a typo'd run.
@@ -172,7 +220,8 @@ const inScope = (tid, id) => {
 
 for (const tid of registered.order) {
 	const t = registered.tracks[tid];
-	const exec = t.runner === 'ts' ? tsRun : t.runner === 'js' ? jsRun : t.runner === 'html' ? htmlRun : run;
+	const exec = t.runner === 'ts' ? tsRun : t.runner === 'js' ? jsRun : t.runner === 'html' ? htmlRun
+		: t.runner === 'react' ? reactRun : t.runner === 'py' ? pyRun : t.runner === 'sh' ? shRun : run;
 	for (const id of t.order) {
 		const it = t.items[id];
 		if (!it) continue; // already failed above
