@@ -18,6 +18,15 @@
 // the browser worker uses (engine/ts-run.js + third_party/typescript) instead of
 // the Go binary — again, no drift between CI and production.
 //
+// An optional argument scopes the DYNAMIC checks (static checks always run
+// on everything — they are cheap and catch cross-track breakage):
+//
+//	node verify/verify.mjs html-pure          # one track
+//	node verify/verify.mjs html-pure/links    # one item
+//
+// which is what authoring agents iterate with — the Go binary is only
+// built if a scoped run actually needs it.
+//
 // Exits non-zero on any failure; CI runs this before deploying.
 
 import { createRequire } from 'module';
@@ -57,7 +66,7 @@ if (trackScripts.length === 0) fail('index.html: no track <script> tags found');
 for (const rel of trackScripts) require(path.join(ROOT, rel));
 
 // --- static shape checks ------------------------------------------------------
-const KNOWN_KINDS = new Set(['lesson', 'problem']);
+const KNOWN_KINDS = new Set(['lesson', 'problem', 'page']);
 for (const tid of registered.order) {
 	const t = registered.tracks[tid];
 	const seen = new Set();
@@ -84,10 +93,15 @@ ok(`static checks: ${registered.order.length} tracks, ` +
 	registered.order.map(tid => `${tid}=${Object.keys(registered.tracks[tid].items).length}`).join(' '));
 
 // --- build the native runner once (much faster than go run per case) ----------
-const bin = path.join(mkdtempSync(path.join(tmpdir(), 'golearn-')), 'runner');
-execFileSync('go', ['build', '-o', bin, './wasm'], { cwd: ROOT, stdio: 'inherit' });
-
+// Built LAZILY since the scoped-run argument arrived: a run scoped to a
+// ts/js/html track never touches the Go interpreter, and authoring agents
+// iterating on one item should not pay a Go build per iteration.
+let bin = null;
 function run(src) {
+	if (!bin) {
+		bin = path.join(mkdtempSync(path.join(tmpdir(), 'golearn-')), 'runner');
+		execFileSync('go', ['build', '-o', bin, './wasm'], { cwd: ROOT, stdio: 'inherit' });
+	}
 	try {
 		return JSON.parse(execFileSync(bin, [], { input: src, encoding: 'utf8' }));
 	} catch (e) {
@@ -131,13 +145,38 @@ function jsRun(src) {
 	return jsRunner.run(src);
 }
 
+// --- the HTML runner (runner: 'html' tracks) --------------------------------
+// engine/html-run.js is the exact validate-and-outline core the browser
+// page kind consults — the outline pinned by a check here is the outline
+// the structure pane shows. run() is synchronous; `await` tolerates that.
+let htmlRunner = null;
+function htmlRun(src) {
+	if (!htmlRunner) htmlRunner = require(path.join(ROOT, 'engine/html-run.js')).create();
+	return htmlRunner.run(src);
+}
+
 // --- dynamic checks ----------------------------------------------------------
+// `only` is "track" or "track/item" (see header). Unknown scopes fail loudly
+// rather than green-lighting a typo'd run.
+const only = process.argv[2] || null;
+if (only) {
+	const [otid, oid] = only.split('/');
+	if (!registered.tracks[otid]) fail(`scope "${only}": no track "${otid}"`);
+	else if (oid && !registered.tracks[otid].items[oid]) fail(`scope "${only}": no item "${oid}" in ${otid}`);
+}
+const inScope = (tid, id) => {
+	if (!only) return true;
+	const [otid, oid] = only.split('/');
+	return tid === otid && (!oid || id === oid);
+};
+
 for (const tid of registered.order) {
 	const t = registered.tracks[tid];
-	const exec = t.runner === 'ts' ? tsRun : t.runner === 'js' ? jsRun : run;
+	const exec = t.runner === 'ts' ? tsRun : t.runner === 'js' ? jsRun : t.runner === 'html' ? htmlRun : run;
 	for (const id of t.order) {
 		const it = t.items[id];
 		if (!it) continue; // already failed above
+		if (!inScope(tid, id)) continue;
 
 		if (it.kind === 'problem') {
 			// Starter: must compile and produce a results table with >=1 failure.

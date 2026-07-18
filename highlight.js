@@ -10,7 +10,8 @@
 //   goHi.editor(ta, code, enabled, lang)
 //                           -> wires a <textarea> to its overlay <code>;
 //                               returns a repaint function. `lang` (optional)
-//                               returns 'go' | 'ts' | 'js' per paint, default 'go'
+//                               returns 'go' | 'ts' | 'js' | 'html' per paint,
+//                               default 'go'
 //
 // Invariant shared by every tokenizer: the text content of the returned HTML
 // is character-identical to the input, so the overlay editor's textarea and
@@ -281,7 +282,9 @@ function editor(ta, code, enabled, lang) {
   const pre = code.parentElement;
   const paint = () => {
     const l = lang && lang();
-    const hi = l === 'ts' ? ts : l === 'js' ? js : go;
+    // html is editor-safe here because swatches (the one non-identity
+    // decoration) are only added when the swatch arg is passed — it isn't.
+    const hi = l === 'ts' ? ts : l === 'js' ? js : l === 'html' ? html : go;
     code.innerHTML = (enabled ? enabled() : true) ? hi(ta.value) + '\n' : esc(ta.value) + '\n';
   };
   const sync = () => { pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; };

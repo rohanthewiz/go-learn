@@ -185,6 +185,28 @@
     white-space: pre-wrap; word-break: break-word;
   }
 
+  /* --- page preview + structure (kind: page) --------------------------------- */
+  /* The iframe is forced light (white bg, color-scheme) regardless of the
+     site theme: it previews the learner's page, and an unstyled page is
+     black-on-white in every real browser — the preview must match that. */
+  #tresults .pagekind { display: flex; flex-direction: column; gap: .55rem; height: 100%; min-height: 0; }
+  #tresults .pagekind .pv-sec { flex: 1 1 55%; display: flex; flex-direction: column; min-height: 9rem; }
+  #tresults .pagekind .ol-sec { flex: 1 1 45%; display: flex; flex-direction: column; min-height: 5rem; }
+  #tresults .pagekind .pane-lbl {
+    font-size: .68rem; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--dim); padding: 0 0 .25rem;
+  }
+  #tresults .pagekind iframe.pv {
+    flex: 1; width: 100%; border: 1px solid var(--edge); border-radius: 6px;
+    background: #fff; color-scheme: light;
+  }
+  #tresults .pagekind pre.ol {
+    flex: 1; margin: 0; padding: .5rem .6rem; overflow: auto;
+    border: 1px solid var(--edge); border-radius: 6px;
+    font: 12.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre;
+  }
+
   /* --- learn view --------------------------------------------------------------- */
   #tut-nav {
     width: 250px; flex: none; overflow-y: auto;
@@ -383,6 +405,11 @@
 <script src="engine/runner-go.js"></script>
 <script src="engine/runner-ts.js"></script>
 <script src="engine/runner-js.js"></script>
+<!-- html-run.js loads on the page (not in a worker like the other cores):
+     the html runner only parses, so main-thread is safe — see runner-html.js -->
+<script src="engine/html-run.js"></script>
+<script src="engine/runner-html.js"></script>
+<script src="engine/kind-page.js"></script>
 <script src="tracks/leetcode/track.js"></script>
 <script src="tracks/leetcode/problems/two-sum.js"></script>
 <script src="tracks/leetcode/problems/valid-anagram.js"></script>
@@ -588,6 +615,28 @@
 <script src="tracks/js-pure/lessons/event-loop.js"></script>
 <script src="tracks/js-pure/lessons/error-handling.js"></script>
 <script src="tracks/js-pure/lessons/proxy-reflect.js"></script>
+
+<script src="tracks/html-pure/track.js"></script>
+<script src="tracks/html-pure/lessons/hello-html.js"></script>
+<script src="tracks/html-pure/lessons/document-structure.js"></script>
+<script src="tracks/html-pure/lessons/text-essentials.js"></script>
+<script src="tracks/html-pure/lessons/lists.js"></script>
+<script src="tracks/html-pure/lessons/links.js"></script>
+<script src="tracks/html-pure/lessons/images.js"></script>
+<script src="tracks/html-pure/lessons/semantic-layout.js"></script>
+<script src="tracks/html-pure/lessons/tables.js"></script>
+<script src="tracks/html-pure/lessons/entities-comments.js"></script>
+<script src="tracks/html-pure/lessons/well-formed.js"></script>
+<script src="tracks/html-pure/lessons/forms-basics.js"></script>
+<script src="tracks/html-pure/lessons/form-controls.js"></script>
+<script src="tracks/html-pure/lessons/form-validation.js"></script>
+<script src="tracks/html-pure/lessons/global-attributes.js"></script>
+<script src="tracks/html-pure/lessons/head-metadata.js"></script>
+<script src="tracks/html-pure/lessons/media-embeds.js"></script>
+<script src="tracks/html-pure/lessons/details-dialog.js"></script>
+<script src="tracks/html-pure/lessons/inline-styles.js"></script>
+<script src="tracks/html-pure/lessons/accessibility.js"></script>
+<script src="tracks/html-pure/lessons/capstone-page.js"></script>
 <script src="tracks/rust/track.js"></script>
 <script src="tracks/rust/problems/ownership-moves.js"></script>
 <script src="tracks/rust/problems/copy-or-move.js"></script>

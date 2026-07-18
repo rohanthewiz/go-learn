@@ -49,6 +49,20 @@ timers.
   closures → higher-order functions → `this` & binding → prototypes →
   classes (`#private`) → inheritance → iterators → generators → promises →
   async/await → the event loop → error handling (`cause`) → Proxy & Reflect.
+- **Pure HTML** — 20 lessons, beginner through advanced, with *plain HTML in
+  the editor* and a split output pane: a sandboxed iframe shows what the
+  browser renders while a strict validator (`engine/html-run.js`) shows the
+  document tree it parsed — or refuses in red what the browser would have
+  silently repaired (mismatched tags, `<div/>`, bare `&`, duplicate ids).
+  Checks pin the canonical structure outline. First elements → document
+  skeleton → text → lists → links → images → semantic layout → tables →
+  entities & comments → well-formedness → forms (basics, controls,
+  validation) → global attributes → head metadata → media & embeds →
+  details/dialog → styling hooks → accessibility → a capstone page. Several
+  lessons show the same markup generated from Go by
+  [element](https://github.com/rohanthewiz/element), bridging to the
+  TypeScript + Go Web track.
+- **Rust for Go Devs** — 8 items teaching Rust's compile-time rules by
   *implementing* them: each shows real Rust code and the real compiler error
   (E0382, E0502, E0106, …), then has you write the rule rustc enforces —
   moves, Copy, drop order, the borrow checker, lifetime elision, match
@@ -133,6 +147,13 @@ engine/runner-js.js  the 'js' runner plugin — pure JavaScript run by the
 engine/worker-js.js  web worker hosting plain JS execution
 engine/js-run.js     the JS execute core (strict, captured console, VIRTUAL
                      deterministic timers), shared verbatim with CI
+engine/runner-html.js  the 'html' runner plugin — no worker: it only parses,
+                     no user code executes
+engine/html-run.js   the strict HTML validate-and-outline core (well-formedness
+                     errors + canonical structure outline), shared verbatim
+                     with CI
+engine/kind-page.js  the 'page' item kind: sandboxed iframe preview (the
+                     browser's forgiving view) above the validator's outline
 engine/assemble.js   merges user code + problem harness into one Go program;
                      parses sentinel-delimited results out of stdout
 tracks/<id>/         a track = manifest + items; plain script tags, no build step
@@ -143,7 +164,7 @@ third_party/typescript/   the TypeScript compiler (typescript.js) + the ES2020
                      lib.d.ts closure it type-checks against
 ```
 
-A track declares a runner (`go-wasm`, `ts`, `js`, or none) and registers items of
+A track declares a runner (`go-wasm`, `ts`, `js`, `html`, or none) and registers items of
 some kind; adding a new track — or a new *kind* of track (quizzes, system
 design) — requires no engine changes. See `tracks/go-basics/track.js` for the
 smallest possible example.
@@ -170,6 +191,10 @@ module cache at the versions go.mod pins.
 `verify.mjs` enforces, for every problem: the starter compiles but fails at
 least one test, and the solution passes all of them — with the exact merge
 code and interpreter the browser uses. CI runs it before every deploy.
+An argument scopes the dynamic checks while authoring — `node
+verify/verify.mjs html-pure` (one track) or `node verify/verify.mjs
+html-pure/links` (one item); the Go toolchain is only invoked if the scope
+actually needs the native runner.
 
 Author a new problem by copying `tracks/leetcode/problems/two-sum.js`,
 adding a `<script>` tag in `index.html`, and its id to the track manifest;
