@@ -140,6 +140,19 @@ timers.
   DiffUtil's minimal edit script via LIS, Compose recomposition & skipping,
   MeasureSpec's 9-case table, resource-qualifier resolution, and the
   runtime-permission two-strike machine.
+- **iOS with Swift** — 18 items teaching the rules the Swift compiler and
+  the iOS frameworks enforce by *implementing* them as testable Go, basics
+  to advanced: optionals (`?.`/`??`/`if let`), value vs reference semantics
+  & copy-on-write, enum exhaustiveness & pattern matching, protocol witness
+  tables vs extensions' static dispatch, closure capture lists, ARC &
+  retain-cycle release cascades, GCD serial queues & the `sync` deadlock,
+  the Task tree (cooperative cancellation, detached firewalls), actor
+  isolation & reentrancy, Combine's cold publishers vs subjects, the
+  view-controller lifecycle interleaving, navigation stacks & modal
+  chains, the app/scene state machine (silent suspended death included),
+  SwiftUI state & view identity, the table-view reuse pool (stale-cell bug
+  included), Auto Layout's hugging/compression arbitration, `hitTest`
+  recursion, and the ask-once permission machine.
 - **CSS via Stylus** — 16 lessons on the principles of CSS — the cascade
   & specificity, inheritance, selectors & combinators, pseudo-classes,
   the box model, units, color, normal flow, flexbox, grid, positioning,
