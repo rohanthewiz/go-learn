@@ -128,6 +128,18 @@ timers.
   Row/Column flex algorithm (overflow stripes included), `Theme.of`'s
   upward walk, reverse-paint-order hit testing, the Navigator stack, and
   the FutureBuilder snapshot machine.
+- **Android with Kotlin** — 18 items teaching the rules the Kotlin compiler
+  and the Android framework enforce by *implementing* them as testable Go:
+  null-safety operators, smart casts as a decision table, what `data class`
+  generates (Java `hashCode` included), sealed-`when` exhaustiveness,
+  extensions' static dispatch, `lazy`/`observable`/`vetoable` delegates,
+  the Looper queue & the 5-second ANR rule, the suspend CPS state machine,
+  the Job tree (cancellation down, failure up, supervisors), cold flows vs
+  StateFlow, the activity lifecycle state machine (A/B interleaving
+  included), ViewModel retention vs process death, back-stack launch modes,
+  DiffUtil's minimal edit script via LIS, Compose recomposition & skipping,
+  MeasureSpec's 9-case table, resource-qualifier resolution, and the
+  runtime-permission two-strike machine.
 - **CSS via Stylus** — 16 lessons on the principles of CSS — the cascade
   & specificity, inheritance, selectors & combinators, pseudo-classes,
   the box model, units, color, normal flow, flexbox, grid, positioning,
@@ -136,6 +148,14 @@ timers.
   compile-time color math) and compiled live in the page by
   [go-styl](https://github.com/rohanthewiz/go-styl). Checks assert on
   the emitted CSS, so any correct styling passes.
+- **Piano & Music Theory** — 18 problems computing the theory a pianist
+  actually runs: note names & MIDI, keyboard geometry, pitch & frequency
+  (equal temperament, cents), intervals & their qualities from spelled
+  notes, major & minor scales, key signatures, the circle (line) of fifths,
+  triads & seventh chords, chord identification with inversions, diatonic
+  chords derived from scale spans, cadences, minimal-motion voice leading,
+  scale fingering as the thumb-never-on-black rule, letters-first
+  transposition, and rhythm arithmetic in exact 64ths.
 - **Networking: TCP/UDP & IP** — 16 items implementing the protocols'
   decision procedures as testable Go, weighted toward the three every
   backend engineer ends up debugging: IPv4 addressing & CIDR, longest-prefix
