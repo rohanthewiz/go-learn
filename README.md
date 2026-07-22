@@ -153,6 +153,24 @@ timers.
   SwiftUI state & view identity, the table-view reuse pool (stale-cell bug
   included), Auto Layout's hugging/compression arbitration, `hitTest`
   recursion, and the ask-once permission machine.
+- **AI & Machine Learning** — 27 problems implementing the algorithms
+  themselves as testable Go — no libraries, no `fit()` black boxes — from
+  first principles to the current stack: gradient descent & learning rates,
+  linear & logistic regression trained by hand, feature scaling & the
+  data-leakage trap, precision/recall/ROC-AUC, k-fold cross-validation &
+  the overfitting gap, kNN, a naive-Bayes spam filter in log-space,
+  decision trees (entropy & information gain), random forests & gradient
+  boosting, SVM hinge-loss margins, k-means, PCA via power iteration,
+  DBSCAN anomaly detection, backpropagation training an MLP on XOR,
+  Momentum/RMSProp/Adam, convolutions & pooling, the LSTM cell & why
+  vanishing gradients killed the RNN, BPE tokenization, embeddings &
+  cosine similarity, scaled dot-product attention, a complete tiny-GPT
+  transformer forward pass (pre-norm, 2-head causal attention, tied
+  embeddings), temperature/top-k/top-p decoding, a RAG retrieval pipeline,
+  LoRA fine-tuning arithmetic, tabular Q-learning in a gridworld, and
+  REINFORCE with the Bradley-Terry bridge to RLHF. Every item is fully
+  deterministic (pinned seeds via explicit LCGs); deployment is left to
+  the k8s and networking tracks.
 - **CSS via Stylus** — 16 lessons on the principles of CSS — the cascade
   & specificity, inheritance, selectors & combinators, pseudo-classes,
   the box model, units, color, normal flow, flexbox, grid, positioning,
