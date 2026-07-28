@@ -121,6 +121,19 @@ timers.
   collection `if`/spread, records, sealed-class exhaustiveness, the
   sync-until-first-`await` rule, the two-queue event loop, streams, and
   isolate message copying.
+- **Zig for Go Devs** — 16 items teaching the rules that make Zig Zig by
+  *implementing* them as testable Go: optionals & `orelse`, error unions
+  & `try`'s propagation machine, error-set algebra & coercion,
+  scope-based `defer`/`errdefer` (and the ownership-transfer pattern Go
+  fakes with a `success` flag), the overflow operators `+%`/`+|` vs
+  safety-checked `+`, `@intCast`/`@truncate` and the implicit-coercion
+  rule, packed-struct bit layout (RGB565), sentinel-terminated slices,
+  strings as bytes with a hand-rolled UTF-8 decoder, tagged-union
+  exhaustiveness, comptime as partial evaluation (a format-string checker
+  Go needs `vet` for), comptime generics & monomorphization, a
+  fixed-buffer arena allocator, ArrayList's growth staircase, the
+  Debug/ReleaseSafe/ReleaseFast safety-mode grid, and a capstone
+  tokenizer that assembles the whole track.
 - **Flutter Internals** — 12 items implementing the framework's core
   machinery in Go: the widget tree walk, `canUpdate`, keyed list
   reconciliation (the checkbox bug), the State lifecycle, setState dirty
@@ -171,6 +184,19 @@ timers.
   REINFORCE with the Bradley-Terry bridge to RLHF. Every item is fully
   deterministic (pinned seeds via explicit LCGs); deployment is left to
   the k8s and networking tracks.
+- **Statistics** — 20 problems, beginner to advanced, implementing every
+  formula a stats course hands you: mean/median/mode and robustness,
+  variance & Bessel's correction, R-7 percentiles & outlier fences,
+  z-scores & the empirical rule, covariance & Pearson's r (and its
+  r=0-on-a-parabola trap), the probability rules, Bayes' theorem & the
+  base-rate fallacy, binomial & Poisson built without factorials, the
+  normal CDF via `erf` with a bisection quantile, the CLT driven by a
+  seeded LCG, z- vs t-confidence intervals, the one-sample t-test,
+  Welch's t & its fractional df, chi-square independence, power &
+  Cohen's d, OLS regression with slope inference, one-way ANOVA (F = t²
+  pinned), Mann-Whitney with midranks, a bootstrap CI for the median,
+  and Beta-Binomial Bayesian updating with a grid credible interval.
+  Harnesses pin the numbers a textbook or R would give.
 - **CSS via Stylus** — 16 lessons on the principles of CSS — the cascade
   & specificity, inheritance, selectors & combinators, pseudo-classes,
   the box model, units, color, normal flow, flexbox, grid, positioning,
