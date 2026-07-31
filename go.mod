@@ -13,11 +13,11 @@ require (
 )
 
 require (
-	github.com/rohanthewiz/bytdb v0.0.0-20260712062454-861153926ff9
+	github.com/rohanthewiz/bytdb v0.7.0
 	github.com/rohanthewiz/serr v1.4.0
 )
 
 require (
-	github.com/rohanthewiz/btypedb v0.5.0 // indirect
+	github.com/rohanthewiz/btypedb v0.7.0 // indirect
 	github.com/tidwall/btype v0.3.0 // indirect
 )

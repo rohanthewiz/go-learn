@@ -4,29 +4,41 @@ package symbols
 
 import (
 	"github.com/rohanthewiz/bytdb"
+	"go/constant"
+	"go/token"
 	"reflect"
 )
 
 func init() {
 	Symbols["github.com/rohanthewiz/bytdb/bytdb"] = map[string]reflect.Value{
 		// function, constant and variable definitions
-		"ErrText":         reflect.ValueOf(bytdb.ErrText),
-		"FormatDate":      reflect.ValueOf(bytdb.FormatDate),
-		"FormatTimestamp": reflect.ValueOf(bytdb.FormatTimestamp),
-		"FormatUUID":      reflect.ValueOf(bytdb.FormatUUID),
-		"Open":            reflect.ValueOf(bytdb.Open),
-		"ParseDate":       reflect.ValueOf(bytdb.ParseDate),
-		"ParseTimestamp":  reflect.ValueOf(bytdb.ParseTimestamp),
-		"ParseUUID":       reflect.ValueOf(bytdb.ParseUUID),
-		"TBool":           reflect.ValueOf(bytdb.TBool),
-		"TBytes":          reflect.ValueOf(bytdb.TBytes),
-		"TDate":           reflect.ValueOf(bytdb.TDate),
-		"TFloat":          reflect.ValueOf(bytdb.TFloat),
-		"TInt":            reflect.ValueOf(bytdb.TInt),
-		"TString":         reflect.ValueOf(bytdb.TString),
-		"TTimestamp":      reflect.ValueOf(bytdb.TTimestamp),
-		"TUUID":           reflect.ValueOf(bytdb.TUUID),
-		"WithSyncNever":   reflect.ValueOf(bytdb.WithSyncNever),
+		"CanonJSONB":           reflect.ValueOf(bytdb.CanonJSONB),
+		"CanonTextArray":       reflect.ValueOf(bytdb.CanonTextArray),
+		"ErrText":              reflect.ValueOf(bytdb.ErrText),
+		"ErrTxConflict":        reflect.ValueOf(&bytdb.ErrTxConflict).Elem(),
+		"FKCascade":            reflect.ValueOf(constant.MakeFromLiteral("\"cascade\"", token.STRING, 0)),
+		"FormatDate":           reflect.ValueOf(bytdb.FormatDate),
+		"FormatTextArray":      reflect.ValueOf(bytdb.FormatTextArray),
+		"FormatTimestamp":      reflect.ValueOf(bytdb.FormatTimestamp),
+		"FormatUUID":           reflect.ValueOf(bytdb.FormatUUID),
+		"Open":                 reflect.ValueOf(bytdb.Open),
+		"ParseDate":            reflect.ValueOf(bytdb.ParseDate),
+		"ParseTextArray":       reflect.ValueOf(bytdb.ParseTextArray),
+		"ParseTimestamp":       reflect.ValueOf(bytdb.ParseTimestamp),
+		"ParseUUID":            reflect.ValueOf(bytdb.ParseUUID),
+		"TBool":                reflect.ValueOf(bytdb.TBool),
+		"TBytes":               reflect.ValueOf(bytdb.TBytes),
+		"TDate":                reflect.ValueOf(bytdb.TDate),
+		"TFloat":               reflect.ValueOf(bytdb.TFloat),
+		"TInt":                 reflect.ValueOf(bytdb.TInt),
+		"TJSONB":               reflect.ValueOf(bytdb.TJSONB),
+		"TString":              reflect.ValueOf(bytdb.TString),
+		"TTextArray":           reflect.ValueOf(bytdb.TTextArray),
+		"TTimestamp":           reflect.ValueOf(bytdb.TTimestamp),
+		"TUUID":                reflect.ValueOf(bytdb.TUUID),
+		"WithConcurrentWrites": reflect.ValueOf(bytdb.WithConcurrentWrites),
+		"WithEncryptionKey":    reflect.ValueOf(bytdb.WithEncryptionKey),
+		"WithSyncNever":        reflect.ValueOf(bytdb.WithSyncNever),
 
 		// type definitions
 		"CheckDesc": reflect.ValueOf((*bytdb.CheckDesc)(nil)),

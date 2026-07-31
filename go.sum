@@ -1,7 +1,7 @@
-github.com/rohanthewiz/btypedb v0.5.0 h1:QYXJ9SsmON2A4F6j0PHwJqXa6gkIGzyPuvNWmr18nK4=
-github.com/rohanthewiz/btypedb v0.5.0/go.mod h1:K+7M8clbmaVh33X9QYm1sA5A7DWDKOE1+O9WFQflMI0=
-github.com/rohanthewiz/bytdb v0.0.0-20260712062454-861153926ff9 h1:sPaUENKqJgd58q3sgtVncEttJjCE/ihdkOvMCUPFyKo=
-github.com/rohanthewiz/bytdb v0.0.0-20260712062454-861153926ff9/go.mod h1:BW+oxA03zsd+mYb8yDYzalhTfBhWsh1STXoZJTF56VY=
+github.com/rohanthewiz/btypedb v0.7.0 h1:i8zu+Rc5YIkocbVuNk1jlnb94g9RTtJQGAGm9xob+QI=
+github.com/rohanthewiz/btypedb v0.7.0/go.mod h1:K+7M8clbmaVh33X9QYm1sA5A7DWDKOE1+O9WFQflMI0=
+github.com/rohanthewiz/bytdb v0.7.0 h1:d8h5XRzKX450zPONbQFJ6999tcgnQOgKb2V+RUBwFNU=
+github.com/rohanthewiz/bytdb v0.7.0/go.mod h1:HKuQb7ptS/dPzagWWttvfy1qkQulke/p8JUHZeDOvO4=
 github.com/rohanthewiz/element v0.6.0 h1:YS7I69mKKjtMa1ezr1ZQKm+XmrhQzKiE9vOSPxdLUvU=
 github.com/rohanthewiz/element v0.6.0/go.mod h1:YZnKqWX2lSsR+zi06x3vhViYVoOSx8xHQjUMTmM/FLo=
 github.com/rohanthewiz/go-styl v0.2.0 h1:yRFXDo5qx8+IUdEcSujubO/45kyMTbBU/y1+lVDRqss=
