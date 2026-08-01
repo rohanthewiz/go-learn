@@ -97,16 +97,33 @@ ok(`static checks: ${registered.order.length} tracks, ` +
 // ts/js/html track never touches the Go interpreter, and authoring agents
 // iterating on one item should not pay a Go build per iteration.
 let bin = null;
+// execFileSync has a rare spawn race (~1 in 500 spawns, observed 2026-07-31
+// on macOS): the child never receives its stdin pipe and parks forever in
+// read(), deadlocking the whole verify run — node waits for the child to
+// exit, the child waits for input that never arrives. The interpreter itself
+// finishes any track item in well under this timeout, so a timed-out spawn
+// IS the race (not a slow program): kill it and spawn once more. The retry
+// must be decided BEFORE the e.stdout branch below, because a killed child
+// can leave partial stdout that would otherwise be misparsed as an exit-2
+// interpreter error.
+const SPAWN_TIMEOUT_MS = 30_000;
 function run(src) {
 	if (!bin) {
 		bin = path.join(mkdtempSync(path.join(tmpdir(), 'golearn-')), 'runner');
 		execFileSync('go', ['build', '-o', bin, './wasm'], { cwd: ROOT, stdio: 'inherit' });
 	}
-	try {
-		return JSON.parse(execFileSync(bin, [], { input: src, encoding: 'utf8' }));
-	} catch (e) {
-		if (e.stdout) return JSON.parse(e.stdout.toString()); // exit 2 = interp error
-		throw e;
+	for (let attempt = 0; ; attempt++) {
+		try {
+			return JSON.parse(execFileSync(bin, [], { input: src, encoding: 'utf8', timeout: SPAWN_TIMEOUT_MS }));
+		} catch (e) {
+			// Timeout surfaces as the kill signal on the error (SIGTERM by
+			// default); some node versions also set code ETIMEDOUT.
+			const timedOut = e.signal === 'SIGTERM' || e.code === 'ETIMEDOUT';
+			if (timedOut && attempt === 0) continue; // the spawn race — one retry
+			if (timedOut) throw new Error('runner timed out twice — not the spawn race, investigate');
+			if (e.stdout) return JSON.parse(e.stdout.toString()); // exit 2 = interp error
+			throw e;
+		}
 	}
 }
 
