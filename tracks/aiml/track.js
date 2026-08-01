@@ -43,7 +43,7 @@
 			// Unsupervised Learning
 			'kmeans-clustering', 'pca-dimensionality', 'dbscan-anomaly',
 			// Neural Networks
-			'backprop-mlp', 'optimizers-adam', 'cnn-convolution', 'rnn-lstm',
+			'perceptron', 'backprop-mlp', 'optimizers-adam', 'cnn-convolution', 'rnn-lstm',
 			// Transformers & LLMs
 			'bpe-tokenizer', 'embeddings-similarity', 'attention-mechanism', 'transformer-block', 'sampling-decoding',
 			// Applied AI & Reinforcement Learning

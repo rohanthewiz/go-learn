@@ -55,7 +55,7 @@
 		nav: 'backprop',
 		difficulty: 'Hard',
 		category: 'Neural Networks',
-		task: 'Implement the forward pass, the chain-rule deltas, and per-sample SGD for a 2-2-1 sigmoid MLP — and train it to solve XOR.',
+		task: 'Implement the forward pass, the chain-rule deltas, and per-sample SGD for a 2-2-1 sigmoid multi-layer perceptron (MLP) — and train it to solve XOR.',
 
 		prose: [
 			'<h2>Backpropagation: Train an MLP on XOR</h2>' +
@@ -70,7 +70,11 @@
 			'dataset that famously has no linear solution (Minsky and Papert, ' +
 			'1969) and therefore <em>needs</em> the hidden layer.</p>' +
 			'<h3>The network</h3>' +
-			'<p>Two inputs, two sigmoid hidden units, one sigmoid output:</p>' +
+			'<p>MLP spells out to <em>multi-layer perceptron</em>: the previous ' +
+			'item\'s neuron stacked into layers, with the hard step swapped for ' +
+			'sigmoid so a gradient exists everywhere for the chain rule to use. ' +
+			'This one has two inputs, two sigmoid hidden units, one sigmoid ' +
+			'output:</p>' +
 			'<ul>' +
 			'<li><code>h[j] = sigmoid(w1[j][0]·x[0] + w1[j][1]·x[1] + b1[j])</code> — <code>w1</code> is indexed <code>[hidden][input]</code></li>' +
 			'<li><code>out = sigmoid(w2[0]·h[0] + w2[1]·h[1] + b2)</code></li>' +
