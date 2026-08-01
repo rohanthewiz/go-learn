@@ -44,6 +44,26 @@
 
 	function key(suffix) { return 'golearn:' + track.id + ':' + suffix; }
 
+	// --- deep links --------------------------------------------------------
+	// #<trackId>/<itemId> addresses one lesson directly (e.g. #aiml/perceptron),
+	// so any lesson can be shared as a plain URL on a static host — no server
+	// routing needed. The address bar is kept in sync on every navigation
+	// (replaceState, so browser history isn't flooded with one entry per
+	// lesson and no hashchange event echoes back at us). Hashes without a
+	// slash (#play, #learn) belong to the page's tab switcher, not the engine.
+	function parseHash(h) {
+		var m = /^#([^\/]+)\/(.+)$/.exec(h || location.hash);
+		if (!m) return null;
+		var tid = decodeURIComponent(m[1]);
+		if (!tracks[tid]) return null;
+		return { track: tid, item: decodeURIComponent(m[2]) };
+	}
+	function syncHash() {
+		if (!track || !items[cur]) return;
+		var h = '#' + encodeURIComponent(track.id) + '/' + encodeURIComponent(items[cur].id);
+		if (location.hash !== h) history.replaceState(null, '', h);
+	}
+
 	function loadTrackState() {
 		try { done = new Set(JSON.parse(store.read(key('done'), '[]'))); }
 		catch (_) { done = new Set(); }
@@ -108,6 +128,7 @@
 	function open(i) {
 		cur = i;
 		store.write(key('cur'), String(i));
+		syncHash();
 		var item = items[i];
 		var kind = kinds[item.kind];
 
@@ -189,7 +210,10 @@
 	}
 
 	// --- track switching ------------------------------------------------------
-	function activateTrack(id) {
+	// itemId (optional) comes from a deep link and overrides the saved
+	// position; an unknown id falls back to the saved position rather than
+	// erroring, so stale shared links still land somewhere sensible.
+	function activateTrack(id, itemId) {
 		track = tracks[id];
 		// Skip (with a console warning) manifest ids with no registered item:
 		// content lands incrementally during authoring, and the verification
@@ -201,6 +225,11 @@
 		}).filter(Boolean);
 		store.write('golearn:track', id);
 		loadTrackState();
+		if (itemId) {
+			for (var i = 0; i < items.length; i++) {
+				if (items[i].id === itemId) { cur = i; break; }
+			}
+		}
 		renderNav();
 		open(cur);
 	}
@@ -281,15 +310,69 @@
 			$('tut-toplay').addEventListener('click', function () {
 				if (window.playHooks) window.playHooks.openInPlayground(els.ta.value);
 			});
+			// The hash is already synced on every open(), so the current URL
+			// *is* the shareable link — this button just gets it onto the
+			// clipboard without making users reach for the address bar.
+			$('tut-link').addEventListener('click', function () {
+				var btn = $('tut-link'), url = location.href;
+				function flash(msg) {
+					var old = btn.textContent;
+					btn.textContent = msg;
+					btn.disabled = true;
+					setTimeout(function () { btn.textContent = old; btn.disabled = false; }, 1200);
+				}
+				// Clipboard API needs a secure context (https/localhost);
+				// the execCommand path covers plain-http and file:// use.
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(url).then(
+						function () { flash('copied ✓'); },
+						function () { flash(url); });
+				} else {
+					var tmp = document.createElement('textarea');
+					tmp.value = url;
+					tmp.style.position = 'fixed';
+					tmp.style.opacity = '0';
+					document.body.appendChild(tmp);
+					tmp.select();
+					var ok = false;
+					try { ok = document.execCommand('copy'); } catch (_) {}
+					document.body.removeChild(tmp);
+					flash(ok ? 'copied ✓' : url);
+				}
+			});
 
-			var startId = store.read('golearn:track', trackOrder[0]);
+			// A deep link in the URL wins over the saved track/position; the
+			// saved state is untouched otherwise, so a shared link doesn't
+			// clobber where a returning user left off in other tracks.
+			var deep = parseHash();
+			var startId = deep ? deep.track : store.read('golearn:track', trackOrder[0]);
 			if (!tracks[startId]) startId = trackOrder[0];
 			sel.value = startId;
-			activateTrack(startId);
+			activateTrack(startId, deep && deep.item);
+
+			// Pasting a lesson link into an already-open tab (or using
+			// back/forward across a hand-edited hash) navigates in place.
+			// syncHash uses replaceState, which never fires this event, so
+			// our own navigation can't loop back through here.
+			window.addEventListener('hashchange', function () {
+				var d = parseHash();
+				if (!d) return;
+				if (d.track !== track.id) {
+					sel.value = d.track;
+					activateTrack(d.track, d.item);
+					return;
+				}
+				for (var i = 0; i < items.length; i++) {
+					if (items[i].id === d.item) { if (i !== cur) open(i); return; }
+				}
+			});
 
 			return {
 				run: run,
 				repaint: function () { repaint(); if (onRepaintExtra) onRepaintExtra(); },
+				// Lets the page restore the lesson hash when returning from a
+				// tab (like the playground) that parks its own hash in the URL.
+				syncHash: syncHash,
 			};
 		},
 

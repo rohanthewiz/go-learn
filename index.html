@@ -396,6 +396,7 @@
       <button id="tut-reset" title="Restore the starter code">reset</button>
       <button id="tut-solution" title="Load the solution">solution</button>
       <button id="tut-toplay" title="Copy this code into the Playground tab">open in playground</button>
+      <button id="tut-link" title="Copy a shareable link to this lesson">copy link</button>
       <span class="spacer"></span>
       <button id="tut-prev">← prev</button>
       <span id="tut-pos"></span>
@@ -1040,6 +1041,11 @@ func main() {
     $('tab-play').classList.toggle('on', name === 'play');
     $('tab-learn').classList.toggle('on', name === 'learn');
     try { localStorage.setItem('golearn:tab', name); } catch (_) {}
+    // Keep the URL truthful per tab: the playground parks #play; Learn
+    // restores the current lesson's deep link (#track/item) so the address
+    // bar is always a shareable link to what's on screen.
+    if (name === 'play') history.replaceState(null, '', '#play');
+    else if (learn) learn.syncHash();
   }
   $('tab-play').addEventListener('click', () => switchTab('play'));
   $('tab-learn').addEventListener('click', () => switchTab('learn'));
@@ -1142,6 +1148,11 @@ func main() {
   src.value = saved || DEFAULT;
   repaintSrc();
 
+  // Snapshot the hash before the engine boots: GoLearn.init() rewrites it
+  // to the current lesson's deep link (#track/item), which would otherwise
+  // erase a #play/#learn tab request before we read it below.
+  const bootHash = location.hash;
+
   // The Learn view boots immediately — content renders while the worker
   // instantiates wasm; runs requested early queue inside the runner.
   learn = GoLearn.init();
@@ -1156,12 +1167,19 @@ func main() {
     GoLearn.wasmReady();
   });
 
-  // Restore the last-open tab; #learn / #play in the URL force one.
+  // Restore the last-open tab; #learn / #play in the URL force one, and a
+  // lesson deep link (#track/item — anything with a slash) forces Learn.
   let tab = 'learn';
   try { tab = localStorage.getItem('golearn:tab') || 'learn'; } catch (_) {}
-  if (location.hash === '#play') tab = 'play';
-  if (location.hash === '#learn') tab = 'learn';
+  if (bootHash === '#play') tab = 'play';
+  if (bootHash === '#learn' || bootHash.includes('/')) tab = 'learn';
   switchTab(tab);
+
+  // A lesson link pasted into an already-open tab: the engine handles the
+  // navigation on hashchange; we just make sure the Learn view is showing.
+  window.addEventListener('hashchange', () => {
+    if (location.hash.includes('/')) switchTab('learn');
+  });
 })();
 </script>
 </body>
