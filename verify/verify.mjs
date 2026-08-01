@@ -119,7 +119,12 @@ function run(src) {
 			// Timeout surfaces as the kill signal on the error (SIGTERM by
 			// default); some node versions also set code ETIMEDOUT.
 			const timedOut = e.signal === 'SIGTERM' || e.code === 'ETIMEDOUT';
-			if (timedOut && attempt === 0) continue; // the spawn race — one retry
+			if (timedOut && attempt === 0) {
+				// Logged so absorbed retries stay observable — otherwise a green
+				// run can't distinguish "race never fired" from "fired, retried".
+				console.log(`note spawn timed out after ${SPAWN_TIMEOUT_MS} ms (stdin race?) — retrying once`);
+				continue;
+			}
 			if (timedOut) throw new Error('runner timed out twice — not the spawn race, investigate');
 			if (e.stdout) return JSON.parse(e.stdout.toString()); // exit 2 = interp error
 			throw e;
